@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
         </nav>
         <form action={signOut} className="ml-auto">
-          <button className="text-sm text-ink-soft hover:text-ink">Déconnexion ({admin.email})</button>
+          <button className="text-sm text-ink-soft hover:text-ink">Déconnexion ({admin.user_metadata.username ?? admin.email})</button>
         </form>
       </div>
       {children}

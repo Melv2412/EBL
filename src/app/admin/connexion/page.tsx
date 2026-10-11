@@ -14,8 +14,8 @@ export default async function LoginPage() {
       <p className="mb-6 mt-1 text-sm text-ink-soft">Réservé à la gestion du site EBL.</p>
       <ActionForm action={signIn} submit="Se connecter">
         <label className={labelCls}>
-          <span>E-mail</span>
-          <input name="email" type="email" autoComplete="email" required className={inputCls} />
+          <span>Identifiant</span>
+          <input name="login" autoComplete="username" autoCapitalize="none" required className={inputCls} />
         </label>
         <label className={labelCls}>
           <span>Mot de passe</span>

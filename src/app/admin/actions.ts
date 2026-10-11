@@ -63,11 +63,14 @@ async function upload(db: Awaited<ReturnType<typeof supabaseServer>>, file: Form
 
 export async function signIn(_: FormState, fd: FormData): Promise<FormState> {
   const db = await supabaseServer();
+  // On se connecte avec un identifiant (« Melv2412 ») : Supabase attend un e-mail,
+  // d'où une adresse technique qui ne reçoit jamais de courrier.
+  const login = String(fd.get("login") ?? "").trim().toLowerCase();
   const { error } = await db.auth.signInWithPassword({
-    email: String(fd.get("email") ?? ""),
+    email: login.includes("@") ? login : `${login}@admin.ebl.local`,
     password: String(fd.get("password") ?? ""),
   });
-  if (error) return { error: "E-mail ou mot de passe incorrect." };
+  if (error) return { error: "Identifiant ou mot de passe incorrect." };
   if (!(await currentAdmin())) {
     await db.auth.signOut();
     return { error: "Ce compte n'a pas les droits d'administration." };
