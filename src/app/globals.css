@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/* Couleurs tirées du logo EBL : turquoise, anthracite, blanc. */
+:root {
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-2: #e8eef2;
+  --ink: #1d2328;
+  --ink-soft: #55616b;
+  --line: #d5dee5;
+  --teal: #1c8fb3;
+  --teal-strong: #136f8d;
+  --teal-soft: #d7eef5;
+  --night: #15191d;
+  --night-2: #20262c;
+  --gold: #e3b341;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1316;
+    --surface: #182026;
+    --surface-2: #1f2930;
+    --ink: #eef3f6;
+    --ink-soft: #9fb0bc;
+    --line: #2a3640;
+    --teal: #45bddc;
+    --teal-strong: #6fd0e8;
+    --teal-soft: #13323d;
+    --night: #090c0e;
+    --night-2: #141a1f;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-teal: var(--teal);
+  --color-teal-strong: var(--teal-strong);
+  --color-teal-soft: var(--teal-soft);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-oswald);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.font-display {
+  letter-spacing: 0.01em;
+}
+
+/* Lignes de terrain en fond des bandeaux sombres. */
+.court-lines {
+  background-image:
+    radial-gradient(circle at 50% 120%, transparent 0 34%, rgba(255, 255, 255, 0.06) 34.2% 34.6%, transparent 34.8%),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(255, 255, 255, 0.06) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

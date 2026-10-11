@@ -1,0 +1,56 @@
+export type EditionStatus = "a_completer" | "en_cours" | "terminee";
+export type SeriesRound = "demi" | "finale" | "troisieme";
+export type AwardType = "mvp" | "mention_honorable";
+
+export type Promo = {
+  number: number;
+  name: string | null;
+  entry_year: number;
+  logo_url: string | null;
+  color_primary: string;
+  color_secondary: string;
+};
+
+export type Edition = {
+  start_year: number;
+  status: EditionStatus;
+  final_date: string | null;
+  final_time: string | null;
+  venue: string | null;
+  summary: string | null;
+};
+
+export type Series = {
+  id: number;
+  edition_year: number;
+  round: SeriesRound;
+  promo_a: number;
+  promo_b: number;
+  winner: number | null;
+  wins_a: number | null;
+  wins_b: number | null;
+  best_of: number;
+};
+
+export type Player = {
+  id: number;
+  full_name: string;
+  promo: number;
+  position: string | null;
+  photo_url: string | null;
+};
+
+export type Award = {
+  id: number;
+  edition_year: number;
+  type: AwardType;
+  player_id: number;
+};
+
+export type LeagueData = {
+  promos: Promo[];
+  editions: Edition[];
+  series: Series[];
+  players: Player[];
+  awards: Award[];
+};
