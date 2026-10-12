@@ -55,6 +55,8 @@ export type Player = {
   position: string | null;
   photo_url: string | null;
   is_captain: boolean;
+  /** Dans le 5 de départ (affiché sur le terrain, sans mention). */
+  is_starter: boolean;
 };
 
 export type Award = {

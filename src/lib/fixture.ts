@@ -34,10 +34,10 @@ export const fixture: LeagueData = {
     { id: 5, edition_year: 2025, round: "finale", promo_a: 12, promo_b: 14, winner: null, wins_a: null, wins_b: null, best_of: 1, match_date: "2026-10-17" },
   ],
   players: [
-    { id: 1, full_name: "Yoan Diebe", promo: 10, position: null, photo_url: null, is_captain: false },
-    { id: 2, full_name: "Baki Elysée", promo: 11, position: null, photo_url: null, is_captain: false },
-    { id: 3, full_name: "Boni Jean-Elie", promo: 12, position: null, photo_url: "/photos/joueurs/boni-jean-elie.webp", is_captain: false },
-    { id: 4, full_name: "Oulé Désiré", promo: 12, position: null, photo_url: null, is_captain: false },
+    { id: 1, full_name: "Yoan Diebe", promo: 10, position: null, photo_url: null, is_captain: false, is_starter: false },
+    { id: 2, full_name: "Baki Elysée", promo: 11, position: null, photo_url: null, is_captain: false, is_starter: false },
+    { id: 3, full_name: "Boni Jean-Elie", promo: 12, position: null, photo_url: "/photos/joueurs/boni-jean-elie.webp", is_captain: false, is_starter: false },
+    { id: 4, full_name: "Oulé Désiré", promo: 12, position: null, photo_url: null, is_captain: false, is_starter: false },
   ],
   awards: [
     { id: 1, edition_year: 2023, type: "mvp", player_id: 1 },

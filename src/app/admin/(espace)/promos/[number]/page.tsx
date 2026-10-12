@@ -139,6 +139,10 @@ function PlayerForm({ promo, player }: { promo: number; player?: Player }) {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="is_captain" defaultChecked={player?.is_captain ?? false} /> Capitaine de la promo
       </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="is_starter" defaultChecked={player?.is_starter ?? false} /> Dans le 5 de départ (placé sur
+        le terrain, sans mention visible)
+      </label>
       <label className={labelCls}>
         <span>Photo {player?.photo_url ? "(remplacer)" : ""}</span>
         <input name="photo" type="file" accept="image/*" className={inputCls} />

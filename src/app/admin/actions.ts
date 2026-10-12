@@ -333,7 +333,15 @@ export async function savePlayer(_: FormState, fd: FormData) {
       promo,
       position: text(fd, "position"),
       is_captain: fd.get("is_captain") === "on",
+      is_starter: fd.get("is_starter") === "on",
     };
+    if (row.is_starter) {
+      let q = db.from("players").select("id", { count: "exact", head: true }).eq("promo", promo).eq("is_starter", true);
+      if (id) q = q.neq("id", id);
+      const { count, error } = await q;
+      if (error) throw new Error(error.message);
+      if ((count ?? 0) >= 5) throw new Error("Le 5 de départ est déjà complet : retire d'abord un autre joueur.");
+    }
     if (photo) row.photo_url = photo;
     if (fd.get("remove_photo") === "on") row.photo_url = null;
     if (id) check(await db.from("players").update(row).eq("id", id));

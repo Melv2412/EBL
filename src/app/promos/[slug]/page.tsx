@@ -17,7 +17,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
 import { LEVEL_TIE, WHATSAPP_URL } from "@/lib/league";
 import { Tie } from "@/components/icons";
-import { PlayerRail } from "@/components/player-rail";
+import { TeamView } from "@/components/team-view";
 
 export const revalidate = 60;
 
@@ -211,7 +211,7 @@ export default async function PromoPage({ params }: Props) {
               .
             </p>
           )}
-          <PlayerRail players={roster} promo={promo} />
+          <TeamView players={roster} promo={promo} />
           </>
         )}
       </Section>
