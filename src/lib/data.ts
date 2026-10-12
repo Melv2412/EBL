@@ -12,15 +12,18 @@ export const getLeagueData = cache(async (): Promise<LeagueData> => {
   if (!url || !anonKey) return fixture;
 
   const db = createClient(url, anonKey, { auth: { persistSession: false } });
-  const [promos, editions, series, players, awards] = await Promise.all([
+  const [promos, editions, series, players, awards, games, editionTeams] = await Promise.all([
     db.from("promos").select("*").order("number"),
     db.from("editions").select("*").order("start_year"),
     db.from("series").select("*").order("id"),
     db.from("players").select("*").order("full_name"),
     db.from("awards").select("*").order("id"),
+    db.from("games").select("id, series_id, game_no, score_a, score_b").order("game_no"),
+    db.from("edition_teams").select("*"),
   ]);
 
-  const error = promos.error ?? editions.error ?? series.error ?? players.error ?? awards.error;
+  const error =
+    promos.error ?? editions.error ?? series.error ?? players.error ?? awards.error ?? games.error ?? editionTeams.error;
   if (error) throw new Error(`Supabase : ${error.message}`);
 
   return {
@@ -29,5 +32,7 @@ export const getLeagueData = cache(async (): Promise<LeagueData> => {
     series: series.data ?? [],
     players: players.data ?? [],
     awards: awards.data ?? [],
+    games: games.data ?? [],
+    editionTeams: editionTeams.data ?? [],
   };
 });

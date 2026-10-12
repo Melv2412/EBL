@@ -26,6 +26,9 @@ insert into series (edition_year, round, promo_a, promo_b, winner, wins_a, wins_
   (2025, 'demi',   12, 11, 12,   2,    1),
   (2025, 'finale', 12, 14, null, null, null);
 
+-- Finale 2025-26 en match sec.
+update series set best_of = 1 where edition_year = 2025 and round = 'finale';
+
 insert into players (full_name, promo) values
   ('Yoan Diebe',     10),
   ('Baki Elysée',    11),

@@ -1,5 +1,5 @@
 export type EditionStatus = "a_completer" | "en_cours" | "terminee";
-export type SeriesRound = "demi" | "finale" | "troisieme";
+export type SeriesRound = "poule" | "demi" | "finale" | "troisieme";
 export type AwardType = "mvp" | "mention_honorable";
 
 export type Promo = {
@@ -30,6 +30,21 @@ export type Series = {
   wins_a: number | null;
   wins_b: number | null;
   best_of: number;
+  match_date: string | null;
+};
+
+/** Score d'une manche (un match sec n'a qu'une manche). */
+export type Game = {
+  id: number;
+  series_id: number;
+  game_no: number;
+  score_a: number | null;
+  score_b: number | null;
+};
+
+export type EditionTeam = {
+  edition_year: number;
+  promo: number;
 };
 
 export type Player = {
@@ -53,4 +68,6 @@ export type LeagueData = {
   series: Series[];
   players: Player[];
   awards: Award[];
+  games: Game[];
+  editionTeams: EditionTeam[];
 };

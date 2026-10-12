@@ -26,11 +26,11 @@ export const fixture: LeagueData = {
     { start_year: 2025, status: "en_cours", final_date: "2026-10-17", ...base },
   ],
   series: [
-    { id: 1, edition_year: 2023, round: "finale", promo_a: 10, promo_b: 11, winner: 10, wins_a: null, wins_b: null, best_of: 3 },
-    { id: 2, edition_year: 2024, round: "finale", promo_a: 12, promo_b: 10, winner: 12, wins_a: null, wins_b: null, best_of: 3 },
-    { id: 3, edition_year: 2025, round: "demi", promo_a: 14, promo_b: 13, winner: 14, wins_a: 2, wins_b: 0, best_of: 3 },
-    { id: 4, edition_year: 2025, round: "demi", promo_a: 12, promo_b: 11, winner: 12, wins_a: 2, wins_b: 1, best_of: 3 },
-    { id: 5, edition_year: 2025, round: "finale", promo_a: 12, promo_b: 14, winner: null, wins_a: null, wins_b: null, best_of: 3 },
+    { id: 1, edition_year: 2023, round: "finale", promo_a: 10, promo_b: 11, winner: 10, wins_a: null, wins_b: null, best_of: 3, match_date: null },
+    { id: 2, edition_year: 2024, round: "finale", promo_a: 12, promo_b: 10, winner: 12, wins_a: null, wins_b: null, best_of: 3, match_date: null },
+    { id: 3, edition_year: 2025, round: "demi", promo_a: 14, promo_b: 13, winner: 14, wins_a: 2, wins_b: 0, best_of: 3, match_date: null },
+    { id: 4, edition_year: 2025, round: "demi", promo_a: 12, promo_b: 11, winner: 12, wins_a: 2, wins_b: 1, best_of: 3, match_date: null },
+    { id: 5, edition_year: 2025, round: "finale", promo_a: 12, promo_b: 14, winner: null, wins_a: null, wins_b: null, best_of: 1, match_date: "2026-10-17" },
   ],
   players: [
     { id: 1, full_name: "Yoan Diebe", promo: 10, position: null, photo_url: null },
@@ -44,4 +44,6 @@ export const fixture: LeagueData = {
     { id: 3, edition_year: 2024, type: "mvp", player_id: 3 },
     { id: 4, edition_year: 2024, type: "mention_honorable", player_id: 4 },
   ],
+  games: [],
+  editionTeams: [],
 };

@@ -109,6 +109,11 @@ export default async function PromoPage({ params }: Props) {
                     <Link href="/" className="font-semibold text-teal">
                       En finale !
                     </Link>
+                  ) : entry.poulePos ? (
+                    <Link href={`/editions/${entry.edition.label}`} className="text-ink-soft hover:text-teal">
+                      {entry.poulePos === 1 ? "1er" : `${entry.poulePos}e`} de la poule
+                      {entry.edition.status === "en_cours" && entry.edition.semis.length === 0 ? " (en cours)" : ""}
+                    </Link>
                   ) : entry.edition.semis.length > 0 ? (
                     <span className="text-ink-soft">Éliminé avant les demies</span>
                   ) : (

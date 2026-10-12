@@ -2,19 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import {
-  buildLeague,
-  levelOf,
-  parseSeason,
-  promoCode,
-  promoName,
-  promoSlug,
-  seasonLabel,
-  type League,
-} from "@/lib/league";
-import type { Series } from "@/lib/types";
+import { buildLeague, parseSeason, promoCode, promoName, seasonLabel } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
-import { LevelTag, PageTitle, Section, seriesScore } from "@/components/ui";
+import { PageTitle, Section } from "@/components/ui";
+import { ProposedSemis, ResultsList, SeriesCard, StandingsTable } from "@/components/season";
 
 export const revalidate = 60;
 
@@ -64,6 +55,18 @@ export default async function EditionPage({ params }: Props) {
         </Section>
       )}
 
+      {e.teams.length > 0 && (
+        <Section title="La poule" kicker={`${e.teams.length} équipes · chacune joue une fois contre les autres`}>
+          <StandingsTable edition={e} league={league} />
+        </Section>
+      )}
+
+      {e.semis.length === 0 && e.poule.length > 0 && !e.final && (
+        <Section title="Demi-finales" kicker="Au meilleur des 3">
+          <ProposedSemis edition={e} league={league} />
+        </Section>
+      )}
+
       {e.final && (
         <Section title="La finale" kicker={e.final.winner ? undefined : "À venir"}>
           <SeriesCard series={e.final} league={league} year={e.start_year} big />
@@ -71,12 +74,18 @@ export default async function EditionPage({ params }: Props) {
       )}
 
       {e.semis.length > 0 && (
-        <Section title="Demi-finales">
+        <Section title="Demi-finales" kicker="Au meilleur des 3">
           <div className="grid gap-4 sm:grid-cols-2">
             {e.semis.map((s) => (
               <SeriesCard key={s.id} series={s} league={league} year={e.start_year} />
             ))}
           </div>
+        </Section>
+      )}
+
+      {e.poule.length > 0 && (
+        <Section title="Résultats">
+          <ResultsList edition={e} league={league} />
         </Section>
       )}
 
@@ -107,40 +116,5 @@ export default async function EditionPage({ params }: Props) {
         </Link>
       </div>
     </>
-  );
-}
-
-function SeriesCard({ series, league, year, big }: { series: Series; league: League; year: number; big?: boolean }) {
-  const decided = series.winner !== null;
-  const side = (n: number) => {
-    const p = league.promo(n)!;
-    const won = series.winner === p.number;
-    return (
-      <Link
-        href={`/promos/${promoSlug(p)}`}
-        className={`flex flex-col items-center gap-2 text-center ${decided && !won ? "opacity-55" : ""}`}
-      >
-        <PromoBadge promo={p} size={big ? 112 : 64} />
-        <span className={`font-display font-bold uppercase leading-tight [overflow-wrap:anywhere] ${big ? "text-xl sm:text-2xl" : "text-lg"}`}>
-          {promoName(p)}
-        </span>
-        <span className="text-xs text-ink-soft">
-          {promoCode(p)} <LevelTag level={levelOf(p, year)} />
-        </span>
-        {won && <span className="text-xs font-semibold text-gold">Vainqueur</span>}
-      </Link>
-    );
-  };
-  return (
-    <div className="rounded-2xl border border-line bg-surface p-4 sm:p-6">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-        {side(series.promo_a)}
-        <div className="text-center">
-          <p className={`font-display font-bold ${big ? "text-4xl" : "text-2xl"}`}>{seriesScore(series) ?? "VS"}</p>
-          {series.best_of > 1 && <p className="text-xs text-ink-soft">au meilleur des {series.best_of}</p>}
-        </div>
-        {side(series.promo_b)}
-      </div>
-    </div>
   );
 }

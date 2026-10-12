@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Series } from "@/lib/types";
 import { PLACEMENT_LABEL, type Placement } from "@/lib/league";
 
 export function Section({
@@ -68,9 +67,4 @@ export function LevelTag({ level }: { level: string | null }) {
   );
 }
 
-/** « 2-1 », ou rien si le score n'est pas connu. */
-export function seriesScore(s: Series, forPromo?: number) {
-  if (s.wins_a === null || s.wins_b === null) return null;
-  if (forPromo === s.promo_b) return `${s.wins_b}-${s.wins_a}`;
-  return `${s.wins_a}-${s.wins_b}`;
-}
+export { seriesScore } from "@/lib/league";

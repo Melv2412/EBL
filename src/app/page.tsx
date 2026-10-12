@@ -15,6 +15,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { Countdown } from "@/components/countdown";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
+import { ResultsList, StandingsTable } from "@/components/season";
 
 export const revalidate = 60;
 
@@ -30,6 +31,7 @@ export default async function Home() {
     <>
       {spot?.kind === "final" && <FinalHero league={league} edition={spot.edition} series={spot.series} />}
       {spot?.kind === "champion" && <ChampionHero edition={spot.edition} />}
+      {spot?.kind === "season" && <SeasonHero league={league} edition={spot.edition} />}
 
       <Ladder league={league} />
 
@@ -243,3 +245,27 @@ function Ladder({ league }: { league: League }) {
   );
 }
 
+function SeasonHero({ league, edition }: { league: League; edition: EditionView }) {
+  return (
+    <>
+      <section className="court-lines bg-night text-white">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-teal">Saison en cours</p>
+          <h1 className="font-display text-5xl font-bold uppercase sm:text-7xl">EBL {edition.label}</h1>
+          <p className="mt-2 max-w-xl text-white/70">
+            {edition.teams.length} équipes dans une poule unique. Les 4 premières vont en demi-finales.
+          </p>
+          <Link href={`/editions/${edition.label}`} className="mt-4 inline-block text-sm font-semibold text-teal">
+            Tout le classement et les résultats →
+          </Link>
+        </div>
+      </section>
+      <Section title="Classement" kicker="Poule">
+        <StandingsTable edition={edition} league={league} compact />
+      </Section>
+      <Section title="Derniers résultats" action={{ href: `/editions/${edition.label}`, label: "Tous les résultats" }}>
+        <ResultsList edition={edition} league={league} limit={5} />
+      </Section>
+    </>
+  );
+}
