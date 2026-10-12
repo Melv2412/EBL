@@ -114,8 +114,8 @@ export default async function PromoPage({ params }: Props) {
               <li
                 key={level}
                 data-reveal
-                style={{ "--reveal-delay": `${i * 100}ms`, borderTopColor: LEVEL_TIE[level].color } as React.CSSProperties}
-                className="flex min-h-32 flex-col rounded-2xl border border-t-4 border-line bg-surface p-4"
+                style={{ "--reveal-delay": `${i * 100}ms`, borderColor: LEVEL_TIE[level].color } as React.CSSProperties}
+                className="flex min-h-32 flex-col rounded-2xl border-2 bg-surface p-4"
               >
                 <div className="flex items-baseline justify-between">
                   <span className="flex items-center gap-1.5 font-display text-2xl font-bold">
@@ -183,6 +183,9 @@ export default async function PromoPage({ params }: Props) {
                   </Link>
                 </p>
                 <p className="font-display text-xl font-bold">{a.player.full_name}</p>
+                  {a.player.position && (
+                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">{a.player.position}</p>
+                  )}
                 <p className="text-sm text-ink-soft">
                   en <LevelTag level={levelOf(promo, a.edition_year)} />
                 </p>
@@ -234,7 +237,9 @@ export default async function PromoPage({ params }: Props) {
                 )}
                 <div className="p-3">
                   <p className="font-semibold leading-tight">{pl.full_name}</p>
-                  {pl.position && <p className="text-xs text-ink-soft">{pl.position}</p>}
+                  {pl.position && (
+                    <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-teal">{pl.position}</p>
+                  )}
                 </div>
               </li>
             ))}

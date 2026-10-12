@@ -224,9 +224,9 @@ function Ladder({ league }: { league: League }) {
           <li
             key={level}
             data-reveal
-            style={{ "--reveal-delay": `${i * 120}ms`, borderTopColor: LEVEL_TIE[level].color } as React.CSSProperties}
-            className={`flex min-h-36 flex-col rounded-2xl border border-t-4 p-4 ${
-              champions.length ? "border-line bg-surface" : "border-dashed border-line bg-transparent"
+            style={{ "--reveal-delay": `${i * 120}ms`, borderColor: LEVEL_TIE[level].color } as React.CSSProperties}
+            className={`flex min-h-36 flex-col rounded-2xl border-2 p-4 ${
+              champions.length ? "bg-surface" : "border-dashed bg-transparent"
             } ${i === ladder.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
           >
             <p className="flex items-center gap-2 font-display text-3xl font-bold">

@@ -7,6 +7,7 @@ const teal = { color_primary: "#1b2a33", color_secondary: "#2aa7c9" };
 
 export const fixture: LeagueData = {
   promos: [
+    { number: 7, name: null, entry_year: 2018, logo_url: null, team_photo_url: null, ...teal },
     { number: 8, name: null, entry_year: 2019, logo_url: null, team_photo_url: null, ...teal },
     { number: 9, name: null, entry_year: 2020, logo_url: null, team_photo_url: null, ...teal },
     { number: 10, name: "Eagle", entry_year: 2021, logo_url: "/logos/it10.jpeg", team_photo_url: null, color_primary: "#1d2939", color_secondary: "#c9ac5f" },

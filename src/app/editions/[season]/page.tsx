@@ -111,6 +111,9 @@ export default async function EditionPage({ params }: Props) {
                     {a.type === "mvp" ? "MVP du tournoi" : "Mention honorable"}
                   </p>
                   <p className="font-display text-xl font-bold">{a.player.full_name}</p>
+                  {a.player.position && (
+                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">{a.player.position}</p>
+                  )}
                   <p className="text-sm text-ink-soft">
                     {promoName(a.promo)} · {promoCode(a.promo)}
                   </p>

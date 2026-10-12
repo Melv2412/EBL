@@ -1,6 +1,7 @@
 -- Données connues au 11/10/2026.
 
 insert into promos (number, name, entry_year, logo_url, color_primary, color_secondary) values
+  (7,  null,                2018, null,               '#1b2a33', '#2aa7c9'),
   (8,  null,                2019, null,               '#1b2a33', '#2aa7c9'),
   (9,  null,                2020, null,               '#1b2a33', '#2aa7c9'),
   (10, 'Eagle',             2021, '/logos/it10.jpeg', '#1d2939', '#c9ac5f'),

@@ -20,7 +20,6 @@ export const metadata: Metadata = {
     locale: "fr_CI",
     type: "website",
   },
-  icons: { icon: "/logos/ebl.jpeg" },
 };
 
 export const viewport: Viewport = {
