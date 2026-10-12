@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Medal } from "./icons";
 import { PromoBadge } from "./promo-badge";
 import { LevelTag, PlacementPill } from "./ui";
 import {
@@ -33,6 +34,7 @@ export function PromoCard({ promo, league }: { promo: Promo; league: League }) {
         {best && (
           <p className="mt-1 text-xs text-white/80">
             {best.placement === "champion" ? "🏆 " : ""}
+            {best.placement === "finaliste" && <Medal size={12} className="mr-1 -mt-0.5 align-middle" />}
             {best.placement === "champion" ? "Champion" : best.placement === "finaliste" ? "Finaliste" : "Demi-finaliste"}{" "}
             {best.editions.map((e) => e.label).join(", ")}
           </p>
@@ -97,7 +99,9 @@ export function EditionCard({ edition }: { edition: EditionView }) {
       <dl className="mt-4 space-y-1 border-t border-line pt-3 text-sm">
         {edition.finalist && (
           <div className="flex justify-between gap-2">
-            <dt className="text-ink-soft">Finaliste</dt>
+            <dt className="inline-flex items-center gap-1 text-ink-soft">
+              <Medal size={14} /> Finaliste
+            </dt>
             <dd className="font-medium">{promoName(edition.finalist)}</dd>
           </div>
         )}

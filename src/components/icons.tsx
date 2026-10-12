@@ -39,3 +39,20 @@ export function BouncingBall({ size = 48, className = "" }: { size?: number; cla
     </span>
   );
 }
+
+const MEDAL = {
+  argent: { face: "#d9dde2", edge: "#9aa3ad", ribbon: "#5b6b7c", label: "Médaille d'argent" },
+  or: { face: "#f4cf5d", edge: "#c8962a", ribbon: "#b8322f", label: "Médaille d'or" },
+} as const;
+
+/** Médaille (argent pour les finalistes). */
+export function Medal({ tone = "argent", size = 14, className = "" }: { tone?: keyof typeof MEDAL; size?: number; className?: string }) {
+  const m = MEDAL[tone];
+  return (
+    <svg viewBox="0 0 20 26" width={size * (20 / 26)} height={size} className={`inline-block shrink-0 ${className}`} role="img" aria-label={m.label}>
+      <path d="M5 1h4l3 8H8zM15 1h-4l-3 8h4z" fill={m.ribbon} />
+      <circle cx="10" cy="17" r="8" fill={m.face} stroke={m.edge} strokeWidth="1.6" />
+      <path d="M10 12.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill={m.edge} />
+    </svg>
+  );
+}

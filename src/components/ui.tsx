@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PLACEMENT_LABEL, isLevel, type Placement } from "@/lib/league";
-import { Tie } from "./icons";
+import { Medal, Tie } from "./icons";
 
 export function Section({
   title,
@@ -53,7 +53,8 @@ const PLACEMENT_STYLE: Record<Placement, string> = {
 
 export function PlacementPill({ placement }: { placement: Placement }) {
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${PLACEMENT_STYLE[placement]}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${PLACEMENT_STYLE[placement]}`}>
+      {placement === "finaliste" && <Medal size={13} />}
       {PLACEMENT_LABEL[placement]}
     </span>
   );

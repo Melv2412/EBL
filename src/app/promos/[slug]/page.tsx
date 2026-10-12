@@ -16,7 +16,7 @@ import {
 import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
 import { LEVEL_TIE, WHATSAPP_URL } from "@/lib/league";
-import { Tie } from "@/components/icons";
+import { Medal, Tie } from "@/components/icons";
 import { TeamView } from "@/components/team-view";
 
 export const revalidate = 60;
@@ -75,8 +75,9 @@ export default async function PromoPage({ params }: Props) {
             <h1 className="font-display text-4xl font-bold uppercase [overflow-wrap:anywhere] sm:text-7xl">{promo.name ?? "Nom à venir"}</h1>
             <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
               {best && (
-                <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-night">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm font-semibold text-night">
                   {best.placement === "champion" ? "🏆 " : ""}
+                  {best.placement === "finaliste" && <Medal size={16} />}
                   {PLACEMENT_LABEL[best.placement]} {best.editions.map((e) => e.label).join(" · ")}
                 </span>
               )}
