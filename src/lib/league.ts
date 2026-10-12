@@ -3,6 +3,19 @@ import type { Award, Edition, Game, LeagueData, Player, Promo, Series } from "./
 export const LEVELS = ["L1", "L2", "L3", "M1", "M2"] as const;
 export type Level = (typeof LEVELS)[number];
 
+/** Couleur de cravate de l'uniforme ESATIC pour chaque niveau. */
+export const LEVEL_TIE: Record<Level, { color: string; name: string }> = {
+  L1: { color: "#1f2f66", name: "bleu nuit" },
+  L2: { color: "#8b949c", name: "grise" },
+  L3: { color: "#f0c22e", name: "jaune" },
+  M1: { color: "#6ec6ee", name: "bleu ciel" },
+  M2: { color: "#2f9e57", name: "verte" },
+};
+
+export function isLevel(v: string | null): v is Level {
+  return v !== null && (LEVELS as readonly string[]).includes(v);
+}
+
 export const WHATSAPP_URL = "https://wa.me/2250788045849";
 
 /** 2025 → « 2025-26 » */

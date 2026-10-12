@@ -15,7 +15,8 @@ import {
 } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
-import { WHATSAPP_URL } from "@/lib/league";
+import { LEVEL_TIE, WHATSAPP_URL } from "@/lib/league";
+import { Tie } from "@/components/icons";
 
 export const revalidate = 60;
 
@@ -110,9 +111,17 @@ export default async function PromoPage({ params }: Props) {
             const entry = journey.find((j) => j.level === level);
             const year = promo.entry_year + i;
             return (
-              <li key={level} className="flex min-h-32 flex-col rounded-2xl border border-line bg-surface p-4">
+              <li
+                key={level}
+                data-reveal
+                style={{ "--reveal-delay": `${i * 100}ms`, borderTopColor: LEVEL_TIE[level].color } as React.CSSProperties}
+                className="flex min-h-32 flex-col rounded-2xl border border-t-4 border-line bg-surface p-4"
+              >
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display text-2xl font-bold text-teal">{level}</span>
+                  <span className="flex items-center gap-1.5 font-display text-2xl font-bold">
+                    <Tie level={level} size={20} />
+                    {level}
+                  </span>
                   <span className="text-xs text-ink-soft">{`${year}-${String(year + 1).slice(2)}`}</span>
                 </div>
                 <div className="mt-auto pt-3 text-sm">

@@ -19,10 +19,11 @@ export function PromoCard({ promo, league }: { promo: Promo; league: League }) {
   return (
     <Link
       href={`/promos/${promoSlug(promo)}`}
-      className="group relative flex items-center gap-4 overflow-hidden rounded-2xl p-4 text-white shadow-sm transition-transform hover:-translate-y-0.5"
+      className="group relative flex items-center gap-4 overflow-hidden rounded-2xl p-4 text-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:-translate-y-1"
       style={{ background: `linear-gradient(135deg, ${promo.color_primary} 55%, ${promo.color_secondary})` }}
     >
-      <PromoBadge promo={promo} size={72} />
+      <span aria-hidden className="ebl-shine" />
+      <PromoBadge promo={promo} size={72} className="transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110" />
       <div className="min-w-0">
         <p className="font-display text-sm font-semibold tracking-widest text-white/70">
           {promoCode(promo)}

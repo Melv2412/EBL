@@ -74,3 +74,101 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* ---------- Animations ---------- */
+
+@keyframes ebl-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ebl-in-left {
+  from { opacity: 0; transform: translateX(-48px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ebl-in-right {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: none; }
+}
+/* Le VS arrive en grand puis « tape » à sa place. */
+@keyframes ebl-vs {
+  0% { opacity: 0; transform: scale(2.4); }
+  60% { opacity: 1; transform: scale(0.88); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ebl-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(69 189 220 / 0.55); }
+  70% { box-shadow: 0 0 0 14px rgb(69 189 220 / 0); }
+}
+/* Le logo du champion tombe dans sa case. */
+@keyframes ebl-drop {
+  0% { opacity: 0; transform: translateY(-28px) scale(0.8); }
+  70% { opacity: 1; transform: translateY(4px) scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ebl-breathe {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+@keyframes ebl-shine {
+  from { transform: translateX(-150%) skewX(-20deg); }
+  to { transform: translateX(350%) skewX(-20deg); }
+}
+@keyframes ebl-bounce {
+  0%, 100% { transform: translateY(0) scale(1.08, 0.9); animation-timing-function: cubic-bezier(0.3, 0, 0.7, 0.4); }
+  12% { transform: translateY(-4%) scale(0.95, 1.05); }
+  50% { transform: translateY(-110%) scale(1); animation-timing-function: cubic-bezier(0.3, 0.6, 0.7, 1); }
+}
+@keyframes ebl-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.35; }
+  50% { transform: scaleX(0.55); opacity: 0.12; }
+}
+
+/* Apparition au défilement : masqué seulement si le JS tourne (voir RevealObserver). */
+.js [data-reveal] { opacity: 0; }
+.js [data-reveal].is-visible {
+  animation: ebl-fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+.is-visible .ebl-drop {
+  animation: ebl-drop 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 250ms);
+}
+.ebl-breathe { animation: ebl-breathe 2.8s ease-in-out infinite; }
+
+.ebl-in-left { animation: ebl-in-left 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.ebl-in-right { animation: ebl-in-right 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.ebl-vs { animation: ebl-vs 0.6s 0.45s cubic-bezier(0.3, 0.7, 0.3, 1.3) both; }
+.ebl-pulse { animation: ebl-pulse 2.2s 1.2s ease-out infinite; }
+
+/* Reflet qui traverse la carte promo au survol. */
+.ebl-shine {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.28), transparent);
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+}
+.group:hover .ebl-shine,
+.group:focus-visible .ebl-shine { animation: ebl-shine 0.9s ease-out; }
+
+.ebl-ball { animation: ebl-bounce 0.9s infinite; transform-origin: 50% 100%; }
+.ebl-ball-shadow { animation: ebl-shadow 0.9s infinite; transform-origin: 50% 50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  [data-reveal],
+  .ebl-drop,
+  .ebl-breathe,
+  .ebl-in-left,
+  .ebl-in-right,
+  .ebl-vs,
+  .ebl-pulse,
+  .ebl-ball,
+  .ebl-ball-shadow {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .group:hover .ebl-shine { animation: none; }
+}

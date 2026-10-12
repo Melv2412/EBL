@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getLeagueData } from "@/lib/data";
 import {
   WHATSAPP_URL,
+  LEVEL_TIE,
   buildLeague,
   levelOf,
   promoCode,
@@ -13,6 +14,7 @@ import {
 import type { Promo, Series } from "@/lib/types";
 import { PromoBadge } from "@/components/promo-badge";
 import { Countdown } from "@/components/countdown";
+import { Tie } from "@/components/icons";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
 import { ResultsList, StandingsTable } from "@/components/season";
@@ -37,16 +39,20 @@ export default async function Home() {
 
       <Section title="Les éditions" kicker="Palmarès" action={{ href: "/editions", label: "Toutes les éditions" }}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {known.slice(0, 3).map((e) => (
-            <EditionCard key={e.start_year} edition={e} />
+          {known.slice(0, 3).map((e, i) => (
+            <div key={e.start_year} data-reveal style={{ "--reveal-delay": `${i * 90}ms` } as React.CSSProperties}>
+              <EditionCard edition={e} />
+            </div>
           ))}
         </div>
       </Section>
 
       <Section title="Les promos" kicker="Une promo, une équipe" action={{ href: "/promos", label: "Toutes les promos" }}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {league.promos.slice(0, 6).map((p) => (
-            <PromoCard key={p.number} promo={p} league={league} />
+          {league.promos.slice(0, 6).map((p, i) => (
+            <div key={p.number} data-reveal style={{ "--reveal-delay": `${i * 70}ms` } as React.CSSProperties}>
+              <PromoCard promo={p} league={league} />
+            </div>
           ))}
         </div>
       </Section>
@@ -94,16 +100,16 @@ function FinalHero({ league, edition, series }: { league: League; edition: Editi
         )}
 
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 sm:gap-8">
-          <Finalist promo={a} year={edition.start_year} league={league} />
+          <Finalist promo={a} year={edition.start_year} league={league} className="ebl-in-left" />
           <div className="pt-10 text-center sm:pt-16">
-            <p className="font-display text-3xl font-bold text-white/40 sm:text-5xl">VS</p>
+            <p className="ebl-vs font-display text-3xl font-bold text-white/40 sm:text-5xl">VS</p>
             {edition.final_date && (
-              <p className="mt-3 whitespace-nowrap rounded-full bg-teal px-2.5 py-1 font-display text-base font-bold sm:px-3 sm:text-2xl">
+              <p className="ebl-pulse mt-3 whitespace-nowrap rounded-full bg-teal px-2.5 py-1 font-display text-base font-bold sm:px-3 sm:text-2xl">
                 <Countdown date={edition.final_date} />
               </p>
             )}
           </div>
-          <Finalist promo={b} year={edition.start_year} league={league} />
+          <Finalist promo={b} year={edition.start_year} league={league} className="ebl-in-right" />
         </div>
 
         {edition.semis.length > 0 && (
@@ -123,10 +129,10 @@ function FinalHero({ league, edition, series }: { league: League; edition: Editi
   );
 }
 
-function Finalist({ promo, year, league }: { promo: Promo; year: number; league: League }) {
+function Finalist({ promo, year, league, className = "" }: { promo: Promo; year: number; league: League; className?: string }) {
   const level = levelOf(promo, year);
   return (
-    <Link href={`/promos/${promoSlug(promo)}`} className="group flex flex-col items-center text-center">
+    <Link href={`/promos/${promoSlug(promo)}`} className={`group flex flex-col items-center text-center ${className}`}>
       <PromoBadge
         promo={promo}
         size={160}
@@ -205,7 +211,8 @@ function Ladder({ league }: { league: League }) {
     <Section title="De la L1 au M2" kicker="L'échelle des champions">
       <p className="-mt-3 mb-6 max-w-2xl text-sm text-ink-soft">
         Chaque titre est rangé au niveau où il a été gagné. Une promo a cinq ans pour écrire son histoire, et celle qui
-        gagnerait à tous les niveaux réussirait le <strong className="text-ink">Grand Chelem</strong>.
+        gagnerait à tous les niveaux réussirait le <strong className="text-ink">Grand Chelem</strong>. Chaque
+        niveau porte la couleur de sa cravate.
       </p>
       {slams.length > 0 && (
         <p className="mb-4 rounded-xl bg-gold/20 p-3 text-sm font-semibold">
@@ -216,17 +223,22 @@ function Ladder({ league }: { league: League }) {
         {ladder.map(({ level, champions }, i) => (
           <li
             key={level}
-            className={`flex min-h-36 flex-col rounded-2xl border p-4 ${
+            data-reveal
+            style={{ "--reveal-delay": `${i * 120}ms`, borderTopColor: LEVEL_TIE[level].color } as React.CSSProperties}
+            className={`flex min-h-36 flex-col rounded-2xl border border-t-4 p-4 ${
               champions.length ? "border-line bg-surface" : "border-dashed border-line bg-transparent"
             } ${i === ladder.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
           >
-            <p className="font-display text-3xl font-bold text-teal">{level}</p>
+            <p className="flex items-center gap-2 font-display text-3xl font-bold">
+              <Tie level={level} size={26} />
+              {level}
+            </p>
             {champions.length === 0 ? (
-              <p className="mt-auto text-sm text-ink-soft">À conquérir</p>
+              <p className="ebl-breathe mt-auto text-sm text-ink-soft">À conquérir</p>
             ) : (
               <ul className="mt-3 space-y-2">
                 {champions.map(({ promo, edition }) => (
-                  <li key={edition.start_year}>
+                  <li key={edition.start_year} className="ebl-drop">
                     <Link href={`/promos/${promoSlug(promo)}`} className="flex items-center gap-2 hover:text-teal">
                       <PromoBadge promo={promo} size={36} className="rounded-lg" />
                       <span className="text-sm leading-tight">

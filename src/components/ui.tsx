@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { PLACEMENT_LABEL, type Placement } from "@/lib/league";
+import { PLACEMENT_LABEL, isLevel, type Placement } from "@/lib/league";
+import { Tie } from "./icons";
 
 export function Section({
   title,
@@ -61,7 +62,8 @@ export function PlacementPill({ placement }: { placement: Placement }) {
 export function LevelTag({ level }: { level: string | null }) {
   if (!level) return null;
   return (
-    <span className="inline-block rounded border border-line px-1.5 py-px font-display text-xs font-semibold text-ink-soft">
+    <span className="inline-flex items-center gap-1 rounded border border-line px-1.5 py-px font-display text-xs font-semibold text-ink-soft">
+      {isLevel(level) && <Tie level={level} size={11} />}
       {level}
     </span>
   );

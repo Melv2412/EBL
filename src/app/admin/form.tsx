@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { FormState } from "./actions";
+import { BouncingBall } from "@/components/icons";
 
 export const inputCls =
   "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-base text-ink outline-none focus:border-teal sm:text-sm";
@@ -51,7 +52,7 @@ export function SubmitButton({ label, danger }: { label: string; danger?: boolea
         danger ? "bg-red-600 hover:bg-red-700" : "bg-teal hover:bg-teal-strong"
       }`}
     >
-      {pending ? "…" : label}
+      {pending ? <BouncingBall size={12} className="-my-3 align-middle" /> : label}
     </button>
   );
 }
