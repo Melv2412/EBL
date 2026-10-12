@@ -212,6 +212,18 @@ export async function saveTeams(_: FormState, fd: FormData) {
   });
 }
 
+/** Demi-finalistes connus sans le détail de la série (archives). */
+export async function saveSemifinalists(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const year = int(fd, "edition_year")!;
+    const chosen = fd.getAll("semi").map((v) => Number(v)).filter(Number.isFinite);
+    check(await db.from("semifinalists").delete().eq("edition_year", year));
+    if (chosen.length) check(await db.from("semifinalists").insert(chosen.map((promo) => ({ edition_year: year, promo }))));
+    return "Demi-finalistes enregistrés.";
+  });
+}
+
 /** Crée les matchs de poule manquants : chaque équipe inscrite contre chacune des autres. */
 export async function generatePoule(_: FormState, fd: FormData) {
   return run(async () => {
@@ -316,7 +328,12 @@ export async function savePlayer(_: FormState, fd: FormData) {
     const full_name = text(fd, "full_name");
     if (!full_name || !promo) throw new Error("Nom et promo obligatoires.");
     const photo = await upload(db, fd.get("photo"), `joueurs/it${promo}`);
-    const row: Record<string, unknown> = { full_name, promo, position: text(fd, "position") };
+    const row: Record<string, unknown> = {
+      full_name,
+      promo,
+      position: text(fd, "position"),
+      is_captain: fd.get("is_captain") === "on",
+    };
     if (photo) row.photo_url = photo;
     if (fd.get("remove_photo") === "on") row.photo_url = null;
     if (id) check(await db.from("players").update(row).eq("id", id));

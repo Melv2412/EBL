@@ -97,6 +97,8 @@ export type EditionView = Edition & {
   label: string;
   final: SeriesView | null;
   semis: SeriesView[];
+  /** Promos éliminées en demie, y compris celles dont on ne connaît pas la série. */
+  semiLosers: Promo[];
   poule: SeriesView[];
   teams: Promo[];
   champion: Promo | null;
@@ -141,17 +143,24 @@ export function buildLeague(data: LeagueData) {
           const player = playerBy.get(a.player_id)!;
           return { ...a, player, promo: promo(player.promo) };
         });
+      const semis = ss.filter((s) => s.round === "demi");
+      const loserNumbers = new Set([
+        ...semis.filter((s) => s.winner !== null).map((s) => (s.winner === s.promo_a ? s.promo_b : s.promo_a)),
+        ...data.semifinalists.filter((x) => x.edition_year === e.start_year).map((x) => x.promo),
+      ]);
+      const semiLosers = [...loserNumbers].filter((n) => promoBy.has(n)).map(promo);
       return {
         ...e,
         label: seasonLabel(e.start_year),
         final,
-        semis: ss.filter((s) => s.round === "demi"),
+        semis,
+        semiLosers,
         poule,
         teams: [...teamNumbers].filter((n) => promoBy.has(n)).map(promo).sort((a, b) => b.number - a.number),
         champion,
         finalist,
         awards,
-        known: ss.length > 0 || awards.length > 0 || teamNumbers.size > 0,
+        known: ss.length > 0 || awards.length > 0 || teamNumbers.size > 0 || semiLosers.length > 0,
       };
     })
     .sort((a, b) => b.start_year - a.start_year);
@@ -215,7 +224,7 @@ export function buildLeague(data: LeagueData) {
         const inFinal = e.final && (e.final.promo_a === p.number || e.final.promo_b === p.number);
         if (inFinal && e.final!.winner === null) pending = e.final;
         else if (inFinal) placement = e.final!.winner === p.number ? "champion" : "finaliste";
-        else if (e.semis.some((s) => s.promo_a === p.number || s.promo_b === p.number)) placement = "demi";
+        else if (e.semiLosers.some((x) => x.number === p.number)) placement = "demi";
         const row = e.poule.length ? standings(e).find((r) => r.promo.number === p.number) : undefined;
         return {
           edition: e,

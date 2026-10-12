@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import { buildLeague, parseSeason, promoCode, promoName, seasonLabel } from "@/lib/league";
+import { buildLeague, parseSeason, promoCode, promoName, promoSlug, seasonLabel } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
 import { PageTitle, Section } from "@/components/ui";
 import { ProposedSemis, ResultsList, SeriesCard, StandingsTable } from "@/components/season";
@@ -81,6 +81,27 @@ export default async function EditionPage({ params }: Props) {
               <SeriesCard key={s.id} series={s} league={league} year={e.start_year} />
             ))}
           </div>
+        </Section>
+      )}
+
+      {e.semis.length === 0 && e.semiLosers.length > 0 && (
+        <Section title="Demi-finalistes" kicker="Éliminés en demi-finale">
+          <ul className="flex flex-wrap gap-3">
+            {e.semiLosers.map((p) => (
+              <li key={p.number}>
+                <Link
+                  href={`/promos/${promoSlug(p)}`}
+                  className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 pr-5 hover:border-teal"
+                >
+                  <PromoBadge promo={p} size={44} />
+                  <span>
+                    <span className="block font-display text-lg font-bold uppercase leading-tight">{promoName(p)}</span>
+                    <span className="text-xs text-ink-soft">{promoCode(p)}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Section>
       )}
 

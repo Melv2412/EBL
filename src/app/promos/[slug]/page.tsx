@@ -56,7 +56,7 @@ export default async function PromoPage({ params }: Props) {
   const journey = league.journey(promo);
   const best = league.bestResult(promo);
   const awards = league.awardsOf(promo);
-  const roster = league.playersOf(promo);
+  const roster = [...league.playersOf(promo)].sort((a, b) => Number(b.is_captain) - Number(a.is_captain));
   const nowLevel = levelOf(promo, currentSeasonYear());
 
   return (
@@ -236,7 +236,17 @@ export default async function PromoPage({ params }: Props) {
                   </div>
                 )}
                 <div className="p-3">
-                  <p className="font-semibold leading-tight">{pl.full_name}</p>
+                  <p className="font-semibold leading-tight">
+                    {pl.full_name}
+                    {pl.is_captain && (
+                      <span
+                        title="Capitaine"
+                        className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold align-middle text-[0.65rem] font-bold text-night"
+                      >
+                        C
+                      </span>
+                    )}
+                  </p>
                   {pl.position && (
                     <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-teal">{pl.position}</p>
                   )}

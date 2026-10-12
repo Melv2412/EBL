@@ -13,6 +13,7 @@ import {
   generatePoule,
   saveEdition,
   saveSeries,
+  saveSemifinalists,
   saveTeams,
 } from "../../../actions";
 import { ActionForm, DeleteButton, inputCls, labelCls } from "../../../form";
@@ -28,6 +29,7 @@ export default async function AdminEdition({ params }: Props) {
 
   const eligible = league.promos.filter((p) => levelOf(p, year) !== null);
   const registered = new Set(e.teams.map((p) => p.number));
+  const semiOnly = new Set(data.semifinalists.filter((x) => x.edition_year === year).map((x) => x.promo));
   const promoOptions = eligible.map((p) => ({
     value: p.number,
     label: `${promoCode(p)} ${p.name ?? ""} (${levelOf(p, year)})`,
@@ -154,6 +156,27 @@ export default async function AdminEdition({ params }: Props) {
           )}
         </Card>
       )}
+
+      <Card title="Demi-finalistes (archives)">
+        <p className="mb-3 text-sm text-ink-soft">
+          Pour une édition passée dont on sait qui a perdu en demi-finale, sans connaître l&apos;adversaire ni le score.
+          Inutile si les demies sont saisies comme matchs.
+        </p>
+        <ActionForm action={saveSemifinalists}>
+          <input type="hidden" name="edition_year" value={year} />
+          <div className="grid gap-2 sm:grid-cols-2">
+            {eligible.map((p) => (
+              <label
+                key={p.number}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm has-[:checked]:border-teal has-[:checked]:bg-teal-soft"
+              >
+                <input type="checkbox" name="semi" value={p.number} defaultChecked={semiOnly.has(p.number)} />
+                <span className="font-medium">{promoCode(p)}</span> {p.name ?? ""}
+              </label>
+            ))}
+          </div>
+        </ActionForm>
+      </Card>
 
       <details className="rounded-2xl border border-dashed border-line p-5">
         <summary className="cursor-pointer font-semibold text-teal">+ Ajouter un match à la main (archives, cas particulier)</summary>

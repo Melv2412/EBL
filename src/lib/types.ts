@@ -54,6 +54,7 @@ export type Player = {
   promo: number;
   position: string | null;
   photo_url: string | null;
+  is_captain: boolean;
 };
 
 export type Award = {
@@ -71,4 +72,6 @@ export type LeagueData = {
   awards: Award[];
   games: Game[];
   editionTeams: EditionTeam[];
+  /** Demi-finalistes connus sans le détail de leur série (archives). */
+  semifinalists: EditionTeam[];
 };

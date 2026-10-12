@@ -10,7 +10,7 @@ import { ActionForm, DeleteButton, inputCls, labelCls } from "../../../form";
 
 type Props = { params: Promise<{ number: string }> };
 
-const POSITIONS = ["Meneur", "Arrière", "Ailier", "Ailier fort", "Pivot"];
+const POSITIONS = ["Meneur", "Arrière", "Ailier", "Ailier fort", "Intérieur", "Pivot"];
 
 export default async function AdminPromo({ params }: Props) {
   const n = Number((await params).number);
@@ -136,6 +136,9 @@ function PlayerForm({ promo, player }: { promo: number; player?: Player }) {
           </select>
         </label>
       </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="is_captain" defaultChecked={player?.is_captain ?? false} /> Capitaine de la promo
+      </label>
       <label className={labelCls}>
         <span>Photo {player?.photo_url ? "(remplacer)" : ""}</span>
         <input name="photo" type="file" accept="image/*" className={inputCls} />

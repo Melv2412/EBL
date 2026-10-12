@@ -7,7 +7,7 @@ insert into promos (number, name, entry_year, logo_url, color_primary, color_sec
   (10, 'Eagle',             2021, '/logos/it10.jpeg', '#1d2939', '#c9ac5f'),
   (11, 'Wolvesonze',        2022, '/logos/it11.jpeg', '#25418a', '#6f93d6'),
   (12, 'Grizzly',           2023, '/logos/it12.jpeg', '#3a0a5a', '#b48ee0'),
-  (13, 'Golden Warriors',   2024, '/logos/it13.jpeg', '#121212', '#e0a91a'),
+  (13, 'Warriors',          2024, '/logos/it13.webp', '#13213c', '#f2b21b'),
   (14, 'Les Hecatonchires', 2025, '/logos/it14.jpeg', '#161616', '#d0182f'),
   (15, null,                2026, null,               '#1b2a33', '#2aa7c9');
 
@@ -45,3 +45,6 @@ from (values
   (2024, 'mention_honorable', 'Oulé Désiré')
 ) as v(y, t, name)
 join players p on p.full_name = v.name;
+
+-- Demi-finalistes connus sans le détail de la série.
+insert into semifinalists (edition_year, promo) values (2023, 12), (2024, 11), (2024, 13);
