@@ -17,6 +17,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
 import { LEVEL_TIE, WHATSAPP_URL } from "@/lib/league";
 import { Tie } from "@/components/icons";
+import { PlayerRail } from "@/components/player-rail";
 
 export const revalidate = 60;
 
@@ -210,50 +211,7 @@ export default async function PromoPage({ params }: Props) {
               .
             </p>
           )}
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {roster.map((pl) => (
-              <li key={pl.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
-                {pl.photo_url ? (
-                  <Image
-                    src={pl.photo_url}
-                    alt={pl.full_name}
-                    width={360}
-                    height={480}
-                    sizes="(min-width: 640px) 25vw, 50vw"
-                    className="aspect-[3/4] w-full object-cover object-top"
-                  />
-                ) : (
-                  <div
-                    className="flex aspect-[3/4] items-center justify-center font-display text-4xl font-bold text-white/80"
-                    style={{ background: promo.color_primary }}
-                    aria-hidden
-                  >
-                    {pl.full_name
-                      .split(/\s+/)
-                      .map((w) => w[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </div>
-                )}
-                <div className="p-3">
-                  <p className="font-semibold leading-tight">
-                    {pl.full_name}
-                    {pl.is_captain && (
-                      <span
-                        title="Capitaine"
-                        className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold align-middle text-[0.65rem] font-bold text-night"
-                      >
-                        C
-                      </span>
-                    )}
-                  </p>
-                  {pl.position && (
-                    <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-teal">{pl.position}</p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <PlayerRail players={roster} promo={promo} />
           </>
         )}
       </Section>

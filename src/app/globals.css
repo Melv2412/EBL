@@ -172,3 +172,13 @@ body {
   }
   .group:hover .ebl-shine { animation: none; }
 }
+
+/* Transition entre les pages (voir app/template.tsx). */
+@keyframes ebl-page-in {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.ebl-page { animation: ebl-page-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ebl-page { animation: none; }
+}
