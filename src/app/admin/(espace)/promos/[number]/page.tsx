@@ -64,6 +64,15 @@ export default async function AdminPromo({ params }: Props) {
               <input type="checkbox" name="remove_logo" /> Retirer le logo (l&apos;écusson généré le remplace)
             </label>
           )}
+          <label className={labelCls}>
+            <span>Photo d&apos;équipe {promo.team_photo_url ? "(remplacer)" : ""} : affichée en bannière sur la fiche</span>
+            <input name="team_photo" type="file" accept="image/*" className={inputCls} />
+          </label>
+          {promo.team_photo_url && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="remove_team_photo" /> Retirer la photo d&apos;équipe
+            </label>
+          )}
         </ActionForm>
       </section>
 

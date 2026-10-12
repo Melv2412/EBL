@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
@@ -94,7 +95,17 @@ export default async function EditionPage({ params }: Props) {
           <ul className="grid gap-4 sm:grid-cols-2">
             {[...mvps, ...mentions].map((a) => (
               <li key={a.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
-                <PromoBadge promo={a.promo} size={48} />
+                {a.player.photo_url ? (
+                  <Image
+                    src={a.player.photo_url}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
+                  />
+                ) : (
+                  <PromoBadge promo={a.promo} size={48} />
+                )}
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal">
                     {a.type === "mvp" ? "MVP du tournoi" : "Mention honorable"}

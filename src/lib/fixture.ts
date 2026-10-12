@@ -7,14 +7,14 @@ const teal = { color_primary: "#1b2a33", color_secondary: "#2aa7c9" };
 
 export const fixture: LeagueData = {
   promos: [
-    { number: 8, name: null, entry_year: 2019, logo_url: null, ...teal },
-    { number: 9, name: null, entry_year: 2020, logo_url: null, ...teal },
-    { number: 10, name: "Eagle", entry_year: 2021, logo_url: "/logos/it10.jpeg", color_primary: "#1d2939", color_secondary: "#c9ac5f" },
-    { number: 11, name: "Wolvesonze", entry_year: 2022, logo_url: "/logos/it11.jpeg", color_primary: "#25418a", color_secondary: "#6f93d6" },
-    { number: 12, name: "Grizzly", entry_year: 2023, logo_url: "/logos/it12.jpeg", color_primary: "#3a0a5a", color_secondary: "#b48ee0" },
-    { number: 13, name: "Golden Warriors", entry_year: 2024, logo_url: "/logos/it13.jpeg", color_primary: "#121212", color_secondary: "#e0a91a" },
-    { number: 14, name: "Les Hecatonchires", entry_year: 2025, logo_url: "/logos/it14.jpeg", color_primary: "#161616", color_secondary: "#d0182f" },
-    { number: 15, name: null, entry_year: 2026, logo_url: null, ...teal },
+    { number: 8, name: null, entry_year: 2019, logo_url: null, team_photo_url: null, ...teal },
+    { number: 9, name: null, entry_year: 2020, logo_url: null, team_photo_url: null, ...teal },
+    { number: 10, name: "Eagle", entry_year: 2021, logo_url: "/logos/it10.jpeg", team_photo_url: null, color_primary: "#1d2939", color_secondary: "#c9ac5f" },
+    { number: 11, name: "Wolvesonze", entry_year: 2022, logo_url: "/logos/it11.jpeg", team_photo_url: null, color_primary: "#25418a", color_secondary: "#6f93d6" },
+    { number: 12, name: "Grizzly", entry_year: 2023, logo_url: "/logos/it12.jpeg", team_photo_url: "/photos/equipes/it12.webp", color_primary: "#3a0a5a", color_secondary: "#b48ee0" },
+    { number: 13, name: "Golden Warriors", entry_year: 2024, logo_url: "/logos/it13.jpeg", team_photo_url: "/photos/equipes/it13.webp", color_primary: "#121212", color_secondary: "#e0a91a" },
+    { number: 14, name: "Les Hecatonchires", entry_year: 2025, logo_url: "/logos/it14.jpeg", team_photo_url: null, color_primary: "#161616", color_secondary: "#d0182f" },
+    { number: 15, name: null, entry_year: 2026, logo_url: null, team_photo_url: null, ...teal },
   ],
   editions: [
     { start_year: 2019, status: "a_completer", final_date: null, ...base },
@@ -35,7 +35,7 @@ export const fixture: LeagueData = {
   players: [
     { id: 1, full_name: "Yoan Diebe", promo: 10, position: null, photo_url: null },
     { id: 2, full_name: "Baki Elysée", promo: 11, position: null, photo_url: null },
-    { id: 3, full_name: "Boni Jean-Elie", promo: 12, position: null, photo_url: null },
+    { id: 3, full_name: "Boni Jean-Elie", promo: 12, position: null, photo_url: "/photos/joueurs/boni-jean-elie.webp" },
     { id: 4, full_name: "Oulé Désiré", promo: 12, position: null, photo_url: null },
   ],
   awards: [

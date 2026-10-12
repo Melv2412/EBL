@@ -9,6 +9,7 @@ export type Promo = {
   logo_url: string | null;
   color_primary: string;
   color_secondary: string;
+  team_photo_url: string | null;
 };
 
 export type Edition = {

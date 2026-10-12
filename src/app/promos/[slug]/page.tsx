@@ -15,12 +15,13 @@ import {
 } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
+import { WHATSAPP_URL } from "@/lib/league";
 
 export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
-// En dessous, la liste ne contient que les joueurs distingués : ce n'est pas un effectif.
+// En dessous, ce n'est pas un effectif complet : on l'affiche sous « Quelques joueurs ».
 const MIN_ROSTER = 5;
 
 function numberFromSlug(slug: string) {
@@ -69,7 +70,7 @@ export default async function PromoPage({ params }: Props) {
             <p className="font-display text-lg tracking-[0.25em] text-white/70">
               {promoCode(promo)} · entrée en {promo.entry_year}
             </p>
-            <h1 className="font-display text-5xl font-bold uppercase sm:text-7xl">{promo.name ?? "Nom à venir"}</h1>
+            <h1 className="font-display text-4xl font-bold uppercase [overflow-wrap:anywhere] sm:text-7xl">{promo.name ?? "Nom à venir"}</h1>
             <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
               {best && (
                 <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-night">
@@ -86,6 +87,22 @@ export default async function PromoPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {promo.team_photo_url && (
+        <div className="mx-auto max-w-6xl px-4 pt-8">
+          <figure className="overflow-hidden rounded-2xl border border-line">
+            <Image
+              src={promo.team_photo_url}
+              alt={`L'équipe ${promoName(promo)} (${promoCode(promo)})`}
+              width={1600}
+              height={700}
+              sizes="(min-width: 1152px) 1152px, 100vw"
+              className="aspect-[16/9] w-full object-cover sm:aspect-[21/9]"
+              priority
+            />
+          </figure>
+        </div>
+      )}
 
       <Section title="Le parcours" kicker="De la L1 au M2">
         <ol className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -139,7 +156,17 @@ export default async function PromoPage({ params }: Props) {
         <Section title="Joueurs distingués">
           <ul className="grid gap-3 sm:grid-cols-2">
             {awards.map((a) => (
-              <li key={a.id} className="rounded-2xl border border-line bg-surface p-4">
+              <li key={a.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
+                {a.player.photo_url && (
+                  <Image
+                    src={a.player.photo_url}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
+                  />
+                )}
+                <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal">
                   {a.type === "mvp" ? "MVP" : "Mention honorable"} ·{" "}
                   <Link href={`/editions/${league.edition(a.edition_year)!.label}`} className="hover:underline">
@@ -150,24 +177,42 @@ export default async function PromoPage({ params }: Props) {
                 <p className="text-sm text-ink-soft">
                   en <LevelTag level={levelOf(promo, a.edition_year)} />
                 </p>
+                </div>
               </li>
             ))}
           </ul>
         </Section>
       )}
 
-      <Section title="L'effectif">
-        {roster.length < MIN_ROSTER ? (
+      <Section title={roster.length >= MIN_ROSTER ? "L'effectif" : "Quelques joueurs"}>
+        {roster.length === 0 ? (
           <p className="text-ink-soft">L&apos;effectif de {promoName(promo)} arrive bientôt.</p>
         ) : (
+          <>
+          {roster.length < MIN_ROSTER && (
+            <p className="-mt-3 mb-5 text-sm text-ink-soft">
+              Liste incomplète. Tu joues pour {promoName(promo)} ?{" "}
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener" className="font-medium text-teal">
+                Envoie ta photo en maillot
+              </a>
+              .
+            </p>
+          )}
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {roster.map((pl) => (
               <li key={pl.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
                 {pl.photo_url ? (
-                  <Image src={pl.photo_url} alt={pl.full_name} width={300} height={300} className="aspect-square w-full object-cover" />
+                  <Image
+                    src={pl.photo_url}
+                    alt={pl.full_name}
+                    width={360}
+                    height={480}
+                    sizes="(min-width: 640px) 25vw, 50vw"
+                    className="aspect-[3/4] w-full object-cover object-top"
+                  />
                 ) : (
                   <div
-                    className="flex aspect-square items-center justify-center font-display text-4xl font-bold text-white/80"
+                    className="flex aspect-[3/4] items-center justify-center font-display text-4xl font-bold text-white/80"
                     style={{ background: promo.color_primary }}
                     aria-hidden
                   >
@@ -185,6 +230,7 @@ export default async function PromoPage({ params }: Props) {
               </li>
             ))}
           </ul>
+          </>
         )}
       </Section>
 

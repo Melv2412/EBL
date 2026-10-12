@@ -283,6 +283,7 @@ export async function savePromo(_: FormState, fd: FormData) {
     const entry_year = int(fd, "entry_year");
     if (!number || !entry_year) throw new Error("Numéro et année d'entrée obligatoires.");
     const logo = await upload(db, fd.get("logo"), `promos/it${number}`);
+    const teamPhoto = await upload(db, fd.get("team_photo"), `equipes/it${number}`);
     const row: Record<string, unknown> = {
       number,
       name: text(fd, "name"),
@@ -292,6 +293,8 @@ export async function savePromo(_: FormState, fd: FormData) {
     };
     if (logo) row.logo_url = logo;
     if (fd.get("remove_logo") === "on") row.logo_url = null;
+    if (teamPhoto) row.team_photo_url = teamPhoto;
+    if (fd.get("remove_team_photo") === "on") row.team_photo_url = null;
     if (fd.get("mode") === "create") {
       const res = await db.from("promos").insert(row);
       if (res.error?.code === "23505") throw new Error(`IT${number} existe déjà.`);
