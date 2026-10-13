@@ -6,6 +6,7 @@ import { buildLeague, promoCode, promoSlug } from "@/lib/league";
 import type { Player } from "@/lib/types";
 import { PromoBadge } from "@/components/promo-badge";
 import { deletePlayer, savePlayer, savePromo } from "../../../actions";
+import { ImageInput } from "../../../image-input";
 import { ActionForm, DeleteButton, inputCls, labelCls } from "../../../form";
 
 type Props = { params: Promise<{ number: string }> };
@@ -55,19 +56,19 @@ export default async function AdminPromo({ params }: Props) {
               <input name="color_secondary" type="color" defaultValue={promo.color_secondary} className="h-11 w-full rounded-lg" />
             </label>
           </div>
-          <label className={labelCls}>
+          <div className={labelCls}>
             <span>Logo {promo.logo_url ? "(remplacer)" : ""}</span>
-            <input name="logo" type="file" accept="image/*" className={inputCls} />
-          </label>
+            <ImageInput name="logo" />
+          </div>
           {promo.logo_url && (
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="remove_logo" /> Retirer le logo (l&apos;écusson généré le remplace)
             </label>
           )}
-          <label className={labelCls}>
+          <div className={labelCls}>
             <span>Photo d&apos;équipe {promo.team_photo_url ? "(remplacer)" : ""} : affichée en bannière sur la fiche</span>
-            <input name="team_photo" type="file" accept="image/*" className={inputCls} />
-          </label>
+            <ImageInput name="team_photo" />
+          </div>
           {promo.team_photo_url && (
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="remove_team_photo" /> Retirer la photo d&apos;équipe
@@ -143,10 +144,10 @@ function PlayerForm({ promo, player }: { promo: number; player?: Player }) {
         <input type="checkbox" name="is_starter" defaultChecked={player?.is_starter ?? false} /> Dans le 5 de départ (placé sur
         le terrain, sans mention visible)
       </label>
-      <label className={labelCls}>
+      <div className={labelCls}>
         <span>Photo {player?.photo_url ? "(remplacer)" : ""}</span>
-        <input name="photo" type="file" accept="image/*" className={inputCls} />
-      </label>
+        <ImageInput name="photo" />
+      </div>
       {player?.photo_url && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="remove_photo" /> Retirer la photo
