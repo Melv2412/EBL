@@ -78,6 +78,24 @@ export async function signIn(_: FormState, fd: FormData): Promise<FormState> {
   redirect("/admin");
 }
 
+export async function changePassword(_: FormState, fd: FormData): Promise<FormState> {
+  const admin = await currentAdmin();
+  if (!admin?.email) return { error: "Session expirée : reconnecte-toi." };
+  const current = String(fd.get("current") ?? "");
+  const next = String(fd.get("next") ?? "");
+  if (next.length < 10) return { error: "Le nouveau mot de passe doit faire au moins 10 caractères." };
+  if (next !== String(fd.get("confirm") ?? "")) return { error: "Les deux nouveaux mots de passe ne correspondent pas." };
+  if (next === current) return { error: "Le nouveau mot de passe doit être différent de l'ancien." };
+
+  const db = await supabaseServer();
+  // On revérifie l'ancien mot de passe : une session ouverte sur un téléphone prêté ne suffit pas.
+  const { error: wrong } = await db.auth.signInWithPassword({ email: admin.email, password: current });
+  if (wrong) return { error: "Mot de passe actuel incorrect." };
+  const { error } = await db.auth.updateUser({ password: next });
+  if (error) return { error: error.message };
+  return { ok: "Mot de passe changé." };
+}
+
 export async function signOut() {
   const db = await supabaseServer();
   await db.auth.signOut();

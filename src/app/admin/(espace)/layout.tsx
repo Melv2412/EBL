@@ -24,6 +24,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/promos" className="hover:text-teal">
             Promos et joueurs
           </Link>
+          <Link href="/admin/compte" className="hover:text-teal">
+            Mon compte
+          </Link>
         </nav>
         <form action={signOut} className="ml-auto">
           <button className="text-sm text-ink-soft hover:text-ink">Déconnexion ({admin.user_metadata.username ?? admin.email})</button>

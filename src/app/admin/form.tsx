@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { FormState } from "./actions";
 import { BouncingBall } from "@/components/icons";
+import { compressImages } from "./compress";
 
 export const inputCls =
   "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-base text-ink outline-none focus:border-teal sm:text-sm";
@@ -22,8 +23,13 @@ export function ActionForm({
   className?: string;
 }) {
   const [state, formAction] = useActionState(action, null);
+  // Les photos sont réduites sur l'appareil avant de partir vers le serveur.
+  const send = async (fd: FormData) => {
+    const ready = await compressImages(fd);
+    startTransition(() => formAction(ready));
+  };
   return (
-    <form action={formAction} className={`space-y-3 ${className}`}>
+    <form action={send} className={`space-y-3 ${className}`}>
       {children}
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton label={submit} />
