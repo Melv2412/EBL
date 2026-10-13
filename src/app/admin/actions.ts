@@ -59,6 +59,20 @@ async function upload(db: Awaited<ReturnType<typeof supabaseServer>>, file: Form
   return db.storage.from("media").getPublicUrl(path).data.publicUrl;
 }
 
+/** Aligne une liste « promos d'une édition » sur la sélection : n'ajoute et ne retire que la différence. */
+async function syncPromos(
+  db: Awaited<ReturnType<typeof supabaseServer>>,
+  table: "edition_teams" | "semifinalists",
+  year: number,
+  chosen: number[],
+) {
+  const current = check<{ promo: number }[]>(await db.from(table).select("promo").eq("edition_year", year)).map((r) => r.promo);
+  const added = chosen.filter((p) => !current.includes(p));
+  const removed = current.filter((p) => !chosen.includes(p));
+  if (added.length) check(await db.from(table).insert(added.map((promo) => ({ edition_year: year, promo }))));
+  if (removed.length) check(await db.from(table).delete().eq("edition_year", year).in("promo", removed));
+}
+
 // ---------- session ----------
 
 export async function signIn(_: FormState, fd: FormData): Promise<FormState> {
@@ -198,8 +212,17 @@ export async function saveSeries(_: FormState, fd: FormData) {
     if (id) check(await db.from("series").update(row).eq("id", id));
     else seriesId = check<{ id: number }>(await db.from("series").insert(row).select("id").single()).id;
 
-    check(await db.from("games").delete().eq("series_id", seriesId));
-    if (games.length) check(await db.from("games").insert(games.map((g) => ({ ...g, series_id: seriesId }))));
+    // Seules les manches qui changent sont écrites (le journal reste lisible).
+    if (games.length) {
+      check(
+        await db
+          .from("games")
+          .upsert(games.map((g) => ({ ...g, series_id: seriesId })), { onConflict: "series_id,game_no" }),
+      );
+    }
+    let stale = db.from("games").delete().eq("series_id", seriesId);
+    if (games.length) stale = stale.not("game_no", "in", `(${games.map((g) => g.game_no).join(",")})`);
+    check(await stale);
 
     // Une finale décidée clôt l'édition.
     if (round === "finale" && winner !== null) {
@@ -224,8 +247,7 @@ export async function saveTeams(_: FormState, fd: FormData) {
     const db = await adminDb();
     const year = int(fd, "edition_year")!;
     const chosen = fd.getAll("promo").map((v) => Number(v)).filter(Number.isFinite);
-    check(await db.from("edition_teams").delete().eq("edition_year", year));
-    if (chosen.length) check(await db.from("edition_teams").insert(chosen.map((promo) => ({ edition_year: year, promo }))));
+    await syncPromos(db, "edition_teams", year, chosen);
     return `${chosen.length} équipe${chosen.length > 1 ? "s" : ""} inscrite${chosen.length > 1 ? "s" : ""}.`;
   });
 }
@@ -236,8 +258,7 @@ export async function saveSemifinalists(_: FormState, fd: FormData) {
     const db = await adminDb();
     const year = int(fd, "edition_year")!;
     const chosen = fd.getAll("semi").map((v) => Number(v)).filter(Number.isFinite);
-    check(await db.from("semifinalists").delete().eq("edition_year", year));
-    if (chosen.length) check(await db.from("semifinalists").insert(chosen.map((promo) => ({ edition_year: year, promo }))));
+    await syncPromos(db, "semifinalists", year, chosen);
     return "Demi-finalistes enregistrés.";
   });
 }
@@ -385,6 +406,48 @@ export async function addAward(_: FormState, fd: FormData) {
       await db.from("awards").insert({ edition_year: int(fd, "edition_year"), type: text(fd, "type"), player_id }),
     );
     return "Distinction ajoutée.";
+  });
+}
+
+// ---------- historique ----------
+
+/** Ordre parent → enfant : on recrée les parents avant les enfants, et on supprime dans l'autre sens. */
+const TABLE_ORDER = ["promos", "editions", "players", "series", "games", "awards", "edition_teams", "semifinalists"];
+
+/** Annule une ou plusieurs lignes du journal (une action entière). */
+export async function restoreEntries(fd: FormData) {
+  const db = await adminDb();
+  const ids = String(fd.get("ids") ?? "")
+    .split(",")
+    .map(Number)
+    .filter(Number.isFinite);
+  const rows = check<{ id: number; table_name: string; action: string }[]>(
+    await db.from("audit_log").select("id, table_name, action").in("id", ids),
+  );
+  const rank = (t: string) => TABLE_ORDER.indexOf(t);
+  const step = { insert: 0, update: 1, delete: 2 } as Record<string, number>;
+  rows.sort(
+    (a, b) =>
+      step[a.action] - step[b.action] ||
+      // Ajouts annulés = suppressions : les enfants d'abord. Suppressions annulées = recréations : les parents d'abord.
+      (a.action === "insert" ? rank(b.table_name) - rank(a.table_name) : rank(a.table_name) - rank(b.table_name)) ||
+      b.id - a.id,
+  );
+  for (const r of rows) {
+    const { error } = await db.rpc("audit_restore", { log_id: r.id });
+    if (error && !/Déjà annulée/.test(error.message)) throw new Error(error.message);
+  }
+  publish();
+}
+
+export async function updateAward(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const id = int(fd, "id");
+    const player_id = int(fd, "player_id");
+    if (!id || !player_id) throw new Error("Choisis un joueur.");
+    check(await db.from("awards").update({ type: text(fd, "type"), player_id }).eq("id", id));
+    return "Distinction modifiée.";
   });
 }
 

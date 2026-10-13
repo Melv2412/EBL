@@ -8,6 +8,7 @@ import {
   createFinal,
   createSemis,
   deleteAward,
+  updateAward,
   deleteEdition,
   deleteSeries,
   generatePoule,
@@ -54,7 +55,7 @@ export default async function AdminEdition({ params }: Props) {
       {e.final && (
         <Card title={e.final.winner ? "Finale (terminée)" : "Finale · match sec"}>
           <p className="mb-3 font-semibold">{matchTitle(e.final, league)}</p>
-          <SeriesForm series={e.final} year={year} league={league} />
+          <SeriesForm series={e.final} year={year} league={league} options={promoOptions} />
         </Card>
       )}
 
@@ -64,7 +65,7 @@ export default async function AdminEdition({ params }: Props) {
             {e.semis.map((s) => (
               <div key={s.id} className="rounded-xl border border-line p-4">
                 <p className="mb-3 font-semibold">{matchTitle(s, league)}</p>
-                <SeriesForm series={s} year={year} league={league} />
+                <SeriesForm series={s} year={year} league={league} options={promoOptions} />
               </div>
             ))}
           </div>
@@ -125,7 +126,7 @@ export default async function AdminEdition({ params }: Props) {
                     </span>
                   </summary>
                   <div className="space-y-3 border-t border-line p-4">
-                    <SeriesForm series={s} year={year} league={league} />
+                    <SeriesForm series={s} year={year} league={league} options={promoOptions} />
                     <DeleteButton action={deleteSeries} fields={{ id: s.id }} confirmText="Supprimer ce match ?" />
                   </div>
                 </details>
@@ -189,12 +190,41 @@ export default async function AdminEdition({ params }: Props) {
         {e.awards.length > 0 && (
           <ul className="mb-4 divide-y divide-line">
             {e.awards.map((a) => (
-              <li key={a.id} className="flex items-center justify-between py-2 text-sm">
-                <span>
-                  <strong>{a.type === "mvp" ? "MVP" : "Mention honorable"}</strong> : {a.player.full_name} (
-                  {promoCode(a.promo)})
-                </span>
-                <DeleteButton action={deleteAward} fields={{ id: a.id }} label="Retirer" confirmText="Retirer cette distinction ?" />
+              <li key={a.id} className="py-2 text-sm">
+                <details>
+                  <summary className="flex cursor-pointer items-center justify-between gap-3">
+                    <span>
+                      <strong>{a.type === "mvp" ? "MVP" : "Mention honorable"}</strong> : {a.player.full_name} (
+                      {promoCode(a.promo)})
+                    </span>
+                    <span className="text-xs text-teal">Modifier</span>
+                  </summary>
+                  <div className="mt-3 space-y-3 rounded-lg bg-surface-2 p-3">
+                    <ActionForm action={updateAward}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className={labelCls}>
+                          <span>Distinction</span>
+                          <select name="type" defaultValue={a.type} className={inputCls}>
+                            <option value="mvp">MVP du tournoi</option>
+                            <option value="mention_honorable">Mention honorable</option>
+                          </select>
+                        </label>
+                        <label className={labelCls}>
+                          <span>Joueur</span>
+                          <select name="player_id" defaultValue={a.player_id} className={inputCls}>
+                            {players.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                IT{p.promo} · {p.full_name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+                    </ActionForm>
+                    <DeleteButton action={deleteAward} fields={{ id: a.id }} label="Retirer cette distinction" confirmText="Retirer cette distinction ?" />
+                  </div>
+                </details>
               </li>
             ))}
           </ul>
@@ -336,9 +366,24 @@ function SeriesForm({
         <>
           <input type="hidden" name="id" value={series.id} />
           <input type="hidden" name="round" value={series.round} />
-          <input type="hidden" name="promo_a" value={series.promo_a} />
-          <input type="hidden" name="promo_b" value={series.promo_b} />
           <input type="hidden" name="best_of" value={series.best_of} />
+          <details className="rounded-lg border border-line p-3 text-sm">
+            <summary className="cursor-pointer text-ink-soft">Changer les équipes</summary>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {(["promo_a", "promo_b"] as const).map((field, i) => (
+                <label key={field} className={labelCls}>
+                  <span>Équipe {i === 0 ? "A (scores de gauche)" : "B (scores de droite)"}</span>
+                  <select name={field} defaultValue={series[field]} required className={inputCls}>
+                    {options?.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </details>
         </>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">

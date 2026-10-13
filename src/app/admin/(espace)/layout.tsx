@@ -17,12 +17,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin" className="font-display text-xl font-bold uppercase">
           Admin EBL
         </Link>
-        <nav className="flex gap-3 text-sm font-medium text-ink-soft">
+        <nav className="flex flex-wrap gap-x-3 gap-y-1 text-sm font-medium text-ink-soft">
           <Link href="/admin" className="hover:text-teal">
             Éditions
           </Link>
           <Link href="/admin/promos" className="hover:text-teal">
             Promos et joueurs
+          </Link>
+          <Link href="/admin/historique" className="hover:text-teal">
+            Historique
           </Link>
           <Link href="/admin/compte" className="hover:text-teal">
             Mon compte
