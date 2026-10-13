@@ -1,0 +1,15 @@
+{
+  "fps": 30,
+  "total": 900,
+  "scenes": {
+    "intro": { "start": 0, "end": 90 },
+    "concept": { "start": 90, "end": 270 },
+    "promos": { "start": 270, "end": 570 },
+    "palmares": { "start": 570, "end": 780 },
+    "outro": { "start": 780, "end": 900 }
+  },
+  "bounces": [16, 31, 41],
+  "ties": [168, 180, 192, 204, 216],
+  "dropDelay": 45,
+  "dropStep": 24
+}

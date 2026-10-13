@@ -1,0 +1,22 @@
+{
+  "name": "ebl-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "data": "node scripts/fetch-data.mjs",
+    "music": "node scripts/make-music.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "npm run data && npm run music && remotion render src/index.ts EBL out/ebl.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.535",
+    "@remotion/google-fonts": "^4.0.535",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.535"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

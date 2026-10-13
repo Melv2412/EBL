@@ -44,3 +44,9 @@ next-env.d.ts
 # brouillons et notes privées
 /brouillons/
 *.pdf
+
+# vidéo Remotion : dépendances, rendus et fichiers générés
+/video/node_modules/
+/video/out/
+/video/public/
+/video/src/data.json
