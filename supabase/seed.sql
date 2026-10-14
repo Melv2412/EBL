@@ -18,7 +18,7 @@ insert into editions (start_year, status, final_date) values
   (2022, 'a_completer', null),
   (2023, 'terminee',    null),
   (2024, 'terminee',    null),
-  (2025, 'en_cours',    '2026-10-17');
+  (2025, 'en_cours',    '2026-10-24');
 
 insert into series (edition_year, round, promo_a, promo_b, winner, wins_a, wins_b) values
   (2023, 'finale', 10, 11, 10,   null, null),
@@ -31,7 +31,7 @@ insert into series (edition_year, round, promo_a, promo_b, winner, wins_a, wins_
 update series set best_of = 1 where edition_year = 2025 and round = 'finale';
 
 insert into players (full_name, promo) values
-  ('Yoan Diebe',     10),
+  ('Yoann Debe',     10),
   ('Baki Elysée',    11),
   ('Boni Jean-Elie', 12),
   ('Oulé Désiré',    12);
@@ -39,7 +39,7 @@ insert into players (full_name, promo) values
 insert into awards (edition_year, type, player_id)
 select v.y, v.t::award_type, p.id
 from (values
-  (2023, 'mvp',               'Yoan Diebe'),
+  (2023, 'mvp',               'Yoann Debe'),
   (2023, 'mention_honorable', 'Baki Elysée'),
   (2024, 'mvp',               'Boni Jean-Elie'),
   (2024, 'mention_honorable', 'Oulé Désiré')
