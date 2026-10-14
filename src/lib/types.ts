@@ -1,6 +1,14 @@
 export type EditionStatus = "a_completer" | "en_cours" | "terminee";
 export type SeriesRound = "poule" | "demi" | "finale" | "troisieme";
-export type AwardType = "mvp" | "mention_honorable";
+export type AwardType =
+  | "mvp"
+  | "mvp_finale"
+  | "dpoy"
+  | "top_scorer"
+  | "revelation"
+  | "mention_honorable"
+  | "three_point"
+  | "dunk";
 
 export type Promo = {
   number: number;
@@ -64,6 +72,9 @@ export type Award = {
   edition_year: number;
   type: AwardType;
   player_id: number;
+  /** Meilleur scoreur : total de points et nombre de matchs (facultatifs). */
+  points?: number | null;
+  games?: number | null;
 };
 
 export type LeagueData = {

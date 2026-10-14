@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
-import type { Player, Promo } from "@/lib/types";
+import type { AwardType, Player, Promo } from "@/lib/types";
 import { PlayerRail } from "./player-rail";
 import { SlidingPill } from "./sliding-pill";
 
@@ -269,7 +269,15 @@ function Court({ players, promo }: { players: Player[]; promo: Promo }) {
 }
 
 /** Effectif d'une promo : en liste (par défaut) ou sur le terrain. */
-export function TeamView({ players, promo }: { players: Player[]; promo: Promo }) {
+export function TeamView({
+  players,
+  promo,
+  badges,
+}: {
+  players: Player[];
+  promo: Promo;
+  badges?: Record<number, AwardType[]>;
+}) {
   const [view, setView] = useState<"terrain" | "liste">("liste");
   // Le contenu sort en fondu, puis le nouvel affichage entre : pas de saut brutal.
   const [leaving, setLeaving] = useState(false);
@@ -313,7 +321,7 @@ export function TeamView({ players, promo }: { players: Player[]; promo: Promo }
         key={view}
         className={`transition-[opacity,transform] duration-200 ease-out ${leaving ? "translate-y-2 opacity-0" : "ebl-page"}`}
       >
-        {view === "terrain" ? <Court players={players} promo={promo} /> : <PlayerRail players={players} promo={promo} />}
+        {view === "terrain" ? <Court players={players} promo={promo} /> : <PlayerRail players={players} promo={promo} badges={badges} />}
       </div>
     </div>
   );

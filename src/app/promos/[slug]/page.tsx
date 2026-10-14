@@ -12,11 +12,14 @@ import {
   promoCode,
   promoName,
   promoSlug,
+  seasonLabel,
 } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
 import { LevelTag, PlacementPill, Section } from "@/components/ui";
 import { LEVEL_TIE, WHATSAPP_URL } from "@/lib/league";
 import { Medal, Tie } from "@/components/icons";
+import { AwardIcon } from "@/components/award-icon";
+import { AWARDS, awardDetail, awardRank } from "@/lib/awards";
 import { TeamView } from "@/components/team-view";
 
 export const revalidate = 60;
@@ -57,6 +60,14 @@ export default async function PromoPage({ params }: Props) {
   const journey = league.journey(promo);
   const best = league.bestResult(promo);
   const awards = league.awardsOf(promo);
+  // Un joueur = une carte, ses distinctions de la plus récente à la plus ancienne.
+  const distinguished = [...new Map(awards.map((a) => [a.player.id, a.player])).values()].map((player) => ({
+    player,
+    list: awards
+      .filter((a) => a.player.id === player.id)
+      .sort((x, y) => y.edition_year - x.edition_year || awardRank(x.type) - awardRank(y.type)),
+  }));
+  const badges = Object.fromEntries(distinguished.map((d) => [d.player.id, d.list.map((a) => a.type)]));
   const roster = [...league.playersOf(promo)].sort((a, b) => Number(b.is_captain) - Number(a.is_captain));
   const nowLevel = levelOf(promo, currentSeasonYear());
 
@@ -166,31 +177,37 @@ export default async function PromoPage({ params }: Props) {
       {awards.length > 0 && (
         <Section title="Joueurs distingués">
           <ul className="grid gap-3 sm:grid-cols-2">
-            {awards.map((a) => (
-              <li key={a.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
-                {a.player.photo_url && (
+            {distinguished.map(({ player, list }) => (
+              <li key={player.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
+                {player.photo_url ? (
                   <Image
-                    src={a.player.photo_url}
+                    src={player.photo_url}
                     alt=""
                     width={64}
                     height={64}
                     className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
                   />
+                ) : (
+                  <PromoBadge promo={promo} size={56} />
                 )}
-                <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal">
-                  {a.type === "mvp" ? "MVP" : "Mention honorable"} ·{" "}
-                  <Link href={`/editions/${league.edition(a.edition_year)!.label}`} className="hover:underline">
-                    {league.edition(a.edition_year)!.label}
-                  </Link>
-                </p>
-                <p className="font-display text-xl font-bold">{a.player.full_name}</p>
-                  {a.player.position && (
-                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">{a.player.position}</p>
+                <div className="min-w-0">
+                  <p className="font-display text-xl font-bold leading-tight">{player.full_name}</p>
+                  {player.position && (
+                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">{player.position}</p>
                   )}
-                <p className="text-sm text-ink-soft">
-                  en <LevelTag level={levelOf(promo, a.edition_year)} />
-                </p>
+                  <ul className="mt-1.5 space-y-1 text-sm">
+                    {list.map((a) => (
+                      <li key={a.id} className="flex flex-wrap items-center gap-1.5">
+                        <AwardIcon type={a.type} size={16} />
+                        <span className="font-semibold">{AWARDS[a.type].short}</span>
+                        <Link href={`/editions/${seasonLabel(a.edition_year)}`} className="text-ink-soft hover:underline">
+                          {seasonLabel(a.edition_year)}
+                        </Link>
+                        <LevelTag level={levelOf(promo, a.edition_year)} />
+                        {awardDetail(a) && <span className="text-ink-soft">· {awardDetail(a)}</span>}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </li>
             ))}
@@ -212,7 +229,7 @@ export default async function PromoPage({ params }: Props) {
               .
             </p>
           )}
-          <TeamView players={roster} promo={promo} />
+          <TeamView players={roster} promo={promo} badges={badges} />
           </>
         )}
       </Section>

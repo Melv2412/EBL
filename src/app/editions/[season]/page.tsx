@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
@@ -8,6 +7,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { PageTitle, Section } from "@/components/ui";
 import { ProposedSemis, ResultsList, SeriesCard, StandingsTable } from "@/components/season";
 import { AllEblCourt } from "@/components/all-ebl-court";
+import { AwardsBoard } from "@/components/awards-board";
 import { publishedTeam } from "@/lib/allebl";
 
 export const revalidate = 60;
@@ -40,8 +40,6 @@ export default async function EditionPage({ params }: Props) {
   if (!e) notFound();
   const allEbl = await publishedTeam(e.start_year, data);
 
-  const mvps = e.awards.filter((a) => a.type === "mvp");
-  const mentions = e.awards.filter((a) => a.type === "mention_honorable");
 
   return (
     <>
@@ -121,39 +119,7 @@ export default async function EditionPage({ params }: Props) {
         </Section>
       )}
 
-      {(mvps.length > 0 || mentions.length > 0) && (
-        <Section title="Distinctions">
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {[...mvps, ...mentions].map((a) => (
-              <li key={a.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
-                {a.player.photo_url ? (
-                  <Image
-                    src={a.player.photo_url}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
-                  />
-                ) : (
-                  <PromoBadge promo={a.promo} size={48} />
-                )}
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal">
-                    {a.type === "mvp" ? "MVP du tournoi" : "Mention honorable"}
-                  </p>
-                  <p className="font-display text-xl font-bold">{a.player.full_name}</p>
-                  {a.player.position && (
-                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">{a.player.position}</p>
-                  )}
-                  <p className="text-sm text-ink-soft">
-                    {promoName(a.promo)} · {promoCode(a.promo)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
+      <AwardsBoard awards={e.awards} year={e.start_year} />
 
       <div className="mx-auto max-w-6xl px-4 pt-10">
         <Link href="/editions" className="text-sm font-medium text-teal">

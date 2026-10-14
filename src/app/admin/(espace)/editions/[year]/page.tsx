@@ -4,6 +4,7 @@ import { getLeagueData } from "@/lib/data";
 import { buildLeague, levelOf, promoCode, promoName, seriesScore, type League, type SeriesView } from "@/lib/league";
 import { StandingsTable } from "@/components/season";
 import { ALLEBL_FIRST_YEAR } from "@/lib/allebl";
+import { AWARDS, AWARD_ORDER } from "@/lib/awards";
 import {
   addAward,
   createFinal,
@@ -203,7 +204,7 @@ export default async function AdminEdition({ params }: Props) {
                 <details>
                   <summary className="flex cursor-pointer items-center justify-between gap-3">
                     <span>
-                      <strong>{a.type === "mvp" ? "MVP" : "Mention honorable"}</strong> : {a.player.full_name} (
+                      <strong>{AWARDS[a.type].label}</strong> : {a.player.full_name} (
                       {promoCode(a.promo)})
                     </span>
                     <span className="text-xs text-teal">Modifier</span>
@@ -211,12 +212,12 @@ export default async function AdminEdition({ params }: Props) {
                   <div className="mt-3 space-y-3 rounded-lg bg-surface-2 p-3">
                     <ActionForm action={updateAward}>
                       <input type="hidden" name="id" value={a.id} />
+                      <input type="hidden" name="edition_year" value={year} />
                       <div className="grid gap-3 sm:grid-cols-2">
                         <label className={labelCls}>
                           <span>Distinction</span>
                           <select name="type" defaultValue={a.type} className={inputCls}>
-                            <option value="mvp">MVP du tournoi</option>
-                            <option value="mention_honorable">Mention honorable</option>
+                            <AwardOptions />
                           </select>
                         </label>
                         <label className={labelCls}>
@@ -230,6 +231,7 @@ export default async function AdminEdition({ params }: Props) {
                           </select>
                         </label>
                       </div>
+                      <ScorerFields points={a.points} games={a.games} />
                     </ActionForm>
                     <DeleteButton action={deleteAward} fields={{ id: a.id }} label="Retirer cette distinction" confirmText="Retirer cette distinction ?" />
                   </div>
@@ -243,9 +245,11 @@ export default async function AdminEdition({ params }: Props) {
           <div className="grid gap-3 sm:grid-cols-2">
             <label className={labelCls}>
               <span>Distinction</span>
-              <select name="type" className={inputCls}>
-                <option value="mvp">MVP du tournoi</option>
-                <option value="mention_honorable">Mention honorable</option>
+              <select name="type" required defaultValue="" className={inputCls}>
+                <option value="" disabled>
+                  Choisir…
+                </option>
+                <AwardOptions />
               </select>
             </label>
             <label className={labelCls}>
@@ -262,6 +266,7 @@ export default async function AdminEdition({ params }: Props) {
               </select>
             </label>
           </div>
+          <ScorerFields />
           <p className="text-xs text-ink-soft">
             Joueur absent de la liste ? Ajoute-le d&apos;abord dans{" "}
             <Link href="/admin/promos" className="text-teal">
@@ -499,5 +504,43 @@ function SeriesForm({
         </div>
       </details>
     </ActionForm>
+  );
+}
+
+/** Liste des distinctions, rangée en Tournoi puis Concours. */
+function AwardOptions() {
+  return (
+    <>
+      <optgroup label="Tournoi">
+        {AWARD_ORDER.filter((t) => AWARDS[t].category === "tournoi").map((t) => (
+          <option key={t} value={t}>
+            {AWARDS[t].label}
+          </option>
+        ))}
+      </optgroup>
+      <optgroup label="Concours">
+        {AWARD_ORDER.filter((t) => AWARDS[t].category === "concours").map((t) => (
+          <option key={t} value={t}>
+            {AWARDS[t].label}
+          </option>
+        ))}
+      </optgroup>
+    </>
+  );
+}
+
+/** Total de points du meilleur scoreur (ignoré pour les autres distinctions). */
+function ScorerFields({ points, games }: { points?: number | null; games?: number | null }) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <label className={labelCls}>
+        <span>Points (meilleur scoreur)</span>
+        <input name="points" type="number" min={0} inputMode="numeric" defaultValue={points ?? ""} className={inputCls} />
+      </label>
+      <label className={labelCls}>
+        <span>Matchs joués (facultatif)</span>
+        <input name="games" type="number" min={1} inputMode="numeric" defaultValue={games ?? ""} className={inputCls} />
+      </label>
+    </div>
   );
 }

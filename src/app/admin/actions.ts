@@ -397,15 +397,75 @@ export async function deletePlayer(fd: FormData) {
 
 // ---------- distinctions ----------
 
+/**
+ * Vérifie une distinction avant de l'enregistrer : type connu, Révélation = joueur de la promo en L1
+ * cette saison, MVP de la finale = joueur d'une des deux promos finalistes (si la finale est connue).
+ */
+async function checkAward(db: Awaited<ReturnType<typeof supabaseServer>>, year: number, type: string, playerId: number) {
+  const { isAwardType } = await import("@/lib/awards");
+  if (!isAwardType(type)) throw new Error("Distinction inconnue.");
+  const player = check<{ promo: number }>(await db.from("players").select("promo").eq("id", playerId).single());
+  if (type === "revelation") {
+    const promo = check<{ entry_year: number }>(await db.from("promos").select("entry_year").eq("number", player.promo).single());
+    if (year !== promo.entry_year) throw new Error("La Révélation récompense un joueur de L1 : sa promo doit être en L1 cette saison.");
+  }
+  if (type === "mvp_finale") {
+    const finals = check<{ promo_a: number; promo_b: number }[]>(
+      await db.from("series").select("promo_a, promo_b").eq("edition_year", year).eq("round", "finale"),
+    );
+    const final = finals[0];
+    if (final && player.promo !== final.promo_a && player.promo !== final.promo_b) {
+      throw new Error("Le MVP de la finale doit jouer pour l'une des deux promos finalistes.");
+    }
+  }
+}
+
+function awardFields(fd: FormData, type: string) {
+  // Points et matchs n'ont de sens que pour le meilleur scoreur.
+  if (type !== "top_scorer") return { points: null, games: null };
+  return { points: int(fd, "points"), games: int(fd, "games") };
+}
+
+function awardError(e: unknown): never {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/awards_one_per_type|duplicate key/.test(msg)) {
+    throw new Error("Cette distinction est déjà attribuée pour cette édition : modifie-la plutôt que d'en ajouter une deuxième.");
+  }
+  throw e;
+}
+
 export async function addAward(_: FormState, fd: FormData) {
   return run(async () => {
     const db = await adminDb();
+    const year = int(fd, "edition_year")!;
+    const type = text(fd, "type") ?? "";
     const player_id = int(fd, "player_id");
     if (!player_id) throw new Error("Choisis un joueur.");
-    check(
-      await db.from("awards").insert({ edition_year: int(fd, "edition_year"), type: text(fd, "type"), player_id }),
-    );
+    await checkAward(db, year, type, player_id);
+    try {
+      check(await db.from("awards").insert({ edition_year: year, type, player_id, ...awardFields(fd, type) }));
+    } catch (e) {
+      awardError(e);
+    }
     return "Distinction ajoutée.";
+  });
+}
+
+export async function updateAward(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const id = int(fd, "id");
+    const year = int(fd, "edition_year")!;
+    const type = text(fd, "type") ?? "";
+    const player_id = int(fd, "player_id");
+    if (!id || !player_id) throw new Error("Choisis un joueur.");
+    await checkAward(db, year, type, player_id);
+    try {
+      check(await db.from("awards").update({ type, player_id, ...awardFields(fd, type) }).eq("id", id));
+    } catch (e) {
+      awardError(e);
+    }
+    return "Distinction modifiée.";
   });
 }
 
@@ -438,17 +498,6 @@ export async function restoreEntries(fd: FormData) {
     if (error && !/Déjà annulée/.test(error.message)) throw new Error(error.message);
   }
   publish();
-}
-
-export async function updateAward(_: FormState, fd: FormData) {
-  return run(async () => {
-    const db = await adminDb();
-    const id = int(fd, "id");
-    const player_id = int(fd, "player_id");
-    if (!id || !player_id) throw new Error("Choisis un joueur.");
-    check(await db.from("awards").update({ type: text(fd, "type"), player_id }).eq("id", id));
-    return "Distinction modifiée.";
-  });
 }
 
 export async function deleteAward(fd: FormData) {

@@ -2,13 +2,23 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
-import type { Player, Promo } from "@/lib/types";
+import type { AwardType, Player, Promo } from "@/lib/types";
+import { AwardIcon } from "./award-icon";
 
 /**
  * Effectif sur une seule ligne : on glisse au doigt, ou avec les flèches sur ordinateur.
  * Les cartes s'inclinent à mesure qu'elles s'approchent du bord de l'écran.
  */
-export function PlayerRail({ players, promo }: { players: Player[]; promo: Promo }) {
+export function PlayerRail({
+  players,
+  promo,
+  badges = {},
+}: {
+  players: Player[];
+  promo: Promo;
+  /** Distinctions de chaque joueur (id → types), pour la rangée d'icônes. */
+  badges?: Record<number, AwardType[]>;
+}) {
   const rail = useRef<HTMLUListElement>(null);
 
   const tilt = useCallback(() => {
@@ -107,6 +117,15 @@ export function PlayerRail({ players, promo }: { players: Player[]; promo: Promo
                   {pl.position ?? "Joueur"}
                   {pl.is_captain ? " · Capitaine" : ""}
                 </p>
+                {badges[pl.id]?.length ? (
+                  <p className="mt-1 flex flex-wrap gap-1" aria-label="Distinctions">
+                    {badges[pl.id].map((t, i) => (
+                      <span key={`${t}-${i}`} className="rounded-full bg-white/90 p-0.5">
+                        <AwardIcon type={t} size={14} />
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
               </figcaption>
             </figure>
           </li>

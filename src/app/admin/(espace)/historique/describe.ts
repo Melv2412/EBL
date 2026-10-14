@@ -1,5 +1,6 @@
 import { promoCode, promoName, seasonLabel, type League } from "@/lib/league";
 import type { LeagueData } from "@/lib/types";
+import { AWARDS } from "@/lib/awards";
 
 export type AuditEntry = {
   id: number;
@@ -51,12 +52,12 @@ const FIELD: Record<string, Record<string, string>> = {
     venue: "lieu",
     summary: "résumé",
   },
-  awards: { type: "distinction", player_id: "joueur" },
+  awards: { type: "distinction", player_id: "joueur", points: "points", games: "matchs" },
 };
 
 const ROUND: Record<string, string> = { poule: "Poule", demi: "Demi-finale", finale: "Finale", troisieme: "3e place" };
 const STATUS: Record<string, string> = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée" };
-const AWARD: Record<string, string> = { mvp: "MVP", mention_honorable: "Mention honorable" };
+const AWARD: Record<string, string> = Object.fromEntries(Object.entries(AWARDS).map(([k, v]) => [k, v.label]));
 
 /** Rend les fiches du journal lisibles : noms des promos, joueurs, matchs. */
 export function describer(league: League, data: LeagueData) {
