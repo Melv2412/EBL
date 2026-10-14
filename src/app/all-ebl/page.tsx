@@ -21,7 +21,10 @@ export default async function AllEblPage({ searchParams }: Props) {
 
   // Une saison n'apparaît qu'une fois configurée, et publiée (sauf pour les admins).
   const seasons = settings.filter((s) => votePhase(s) !== "non_configure" && (s.allebl_published || admin));
-  if (seasons.length === 0) notFound();
+  if (seasons.length === 0) {
+    if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
+    notFound();
+  }
 
   const wanted = parseSeason((await searchParams).saison ?? "");
   const s = seasons.find((x) => x.start_year === wanted) ?? seasons[0];
@@ -132,6 +135,26 @@ export default async function AllEblPage({ searchParams }: Props) {
             </div>
           </div>
         )}
+      </Section>
+    </>
+  );
+}
+
+function NotConfigured({ year }: { year: number }) {
+  return (
+    <>
+      <PageTitle kicker="Aperçu admin" title="All-EBL Team" />
+      <Section title="Pas encore configuré">
+        <p className="max-w-xl text-ink-soft">
+          Cette page n&apos;est visible que par les admins. Pour l&apos;activer, règle les dates d&apos;ouverture et de
+          fermeture du vote et coche les candidats.
+        </p>
+        <Link
+          href={`/admin/editions/${year}/all-ebl`}
+          className="mt-4 inline-block rounded-full bg-teal px-5 py-2 font-semibold text-white"
+        >
+          Configurer l&apos;All-EBL Team →
+        </Link>
       </Section>
     </>
   );

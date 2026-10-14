@@ -19,7 +19,10 @@ export default async function VotePage() {
   // L'édition dont le vote est ouvert, sinon la plus récente configurée.
   const visible = settings.filter((s) => s.allebl_published || admin);
   const s = visible.find((x) => votePhase(x) === "ouvert") ?? visible.find((x) => votePhase(x) !== "non_configure");
-  if (!s) notFound();
+  if (!s) {
+    if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
+    notFound();
+  }
 
   const phase = votePhase(s);
   const label = seasonLabel(s.start_year);
@@ -64,6 +67,26 @@ export default async function VotePage() {
             <Ballot action={publicVote} hidden={{ edition_year: s.start_year }} candidates={list} />
           </>
         )}
+      </Section>
+    </>
+  );
+}
+
+function NotConfigured({ year }: { year: number }) {
+  return (
+    <>
+      <PageTitle kicker="Aperçu admin" title="All-EBL Team" />
+      <Section title="Pas encore configuré">
+        <p className="max-w-xl text-ink-soft">
+          Cette page n&apos;est visible que par les admins. Pour l&apos;activer, règle les dates d&apos;ouverture et de
+          fermeture du vote et coche les candidats.
+        </p>
+        <Link
+          href={`/admin/editions/${year}/all-ebl`}
+          className="mt-4 inline-block rounded-full bg-teal px-5 py-2 font-semibold text-white"
+        >
+          Configurer l&apos;All-EBL Team →
+        </Link>
       </Section>
     </>
   );
