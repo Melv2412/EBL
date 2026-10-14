@@ -14,6 +14,8 @@ import {
 import type { Promo, Series } from "@/lib/types";
 import { PromoBadge } from "@/components/promo-badge";
 import { Countdown } from "@/components/countdown";
+import { HowItWorks } from "@/components/how-it-works";
+import { openPublishedVote } from "@/lib/allebl";
 import { Tie } from "@/components/icons";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
@@ -26,6 +28,7 @@ const dateFmt = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeri
 export default async function Home() {
   const league = buildLeague(await getLeagueData());
   const spot = league.spotlight();
+  const voteOpen = await openPublishedVote();
   const known = league.editions.filter((e) => e.known);
   const missing = league.editions.filter((e) => !e.known);
 
@@ -34,6 +37,23 @@ export default async function Home() {
       {spot?.kind === "final" && <FinalHero league={league} edition={spot.edition} series={spot.series} />}
       {spot?.kind === "champion" && <ChampionHero edition={spot.edition} />}
       {spot?.kind === "season" && <SeasonHero league={league} edition={spot.edition} />}
+
+      {voteOpen && (
+        <section className="mx-auto max-w-6xl px-4 pt-10">
+          <Link
+            href="/vote"
+            className="flex flex-col items-start gap-3 rounded-2xl bg-gold p-5 text-night shadow-lg transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-[0.2em]">Vote ouvert</span>
+              <span className="font-display text-2xl font-bold uppercase">Élis l&apos;All-EBL Team {voteOpen}</span>
+            </span>
+            <span className="rounded-full bg-night px-4 py-2 text-sm font-semibold text-white">Voter →</span>
+          </Link>
+        </section>
+      )}
+
+      <HowItWorks />
 
       <Ladder league={league} />
 

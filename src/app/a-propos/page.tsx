@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { WHATSAPP_URL } from "@/lib/league";
 import { PageTitle, Section } from "@/components/ui";
+import { FormatDetails } from "@/components/how-it-works";
 
 export const metadata: Metadata = {
   title: "À propos",
@@ -24,6 +25,7 @@ export default function AboutPage() {
           </p>
         </div>
       </Section>
+      <FormatDetails />
       <Section title="Contribuer">
         <div className="max-w-2xl space-y-4 text-ink-soft">
           <p>

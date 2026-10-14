@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
 import { buildLeague, levelOf, promoCode, promoName, seriesScore, type League, type SeriesView } from "@/lib/league";
 import { StandingsTable } from "@/components/season";
+import { ALLEBL_FIRST_YEAR } from "@/lib/allebl";
 import {
   addAward,
   createFinal,
@@ -45,6 +46,14 @@ export default async function AdminEdition({ params }: Props) {
 
   return (
     <div className="space-y-8">
+      {year >= ALLEBL_FIRST_YEAR && (
+        <Link
+          href={`/admin/editions/${year}/all-ebl`}
+          className="block rounded-2xl border-2 border-gold bg-gold/10 p-4 font-semibold hover:bg-gold/20"
+        >
+          ⭐ All-EBL Team {e.label} : candidats, vote, liens des capitaines →
+        </Link>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold uppercase">Édition {e.label}</h1>
         <Link href={`/editions/${e.label}`} className="text-sm text-teal" target="_blank">

@@ -456,3 +456,92 @@ export async function deleteAward(fd: FormData) {
   check(await db.from("awards").delete().eq("id", int(fd, "id")));
   publish();
 }
+
+// ---------- All-EBL Team ----------
+
+/** Le champ datetime-local est saisi à l'heure d'Abidjan, qui est UTC toute l'année. */
+function utc(local: string | null) {
+  return local ? new Date(`${local}:00Z`).toISOString() : null;
+}
+
+export async function saveAllEblSettings(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const year = int(fd, "edition_year")!;
+    const opens = utc(text(fd, "opens_at"));
+    const closes = utc(text(fd, "closes_at"));
+    if (opens && closes && closes <= opens) throw new Error("La fermeture doit être après l'ouverture.");
+    check(
+      await db
+        .from("editions")
+        .update({ allebl_opens_at: opens, allebl_closes_at: closes, allebl_published: fd.get("published") === "on" })
+        .eq("start_year", year),
+    );
+    return "Réglages du vote enregistrés.";
+  });
+}
+
+export async function saveCandidates(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const year = int(fd, "edition_year")!;
+    const wanted = new Set(fd.getAll("cand").map(String)); // « playerId:side »
+    const current = check<{ player_id: number; side: string }[]>(
+      await db.from("allebl_candidates").select("player_id, side").eq("edition_year", year),
+    );
+    const have = new Set(current.map((c) => `${c.player_id}:${c.side}`));
+    const added = [...wanted].filter((k) => !have.has(k));
+    const removed = [...have].filter((k) => !wanted.has(k));
+    if (added.length) {
+      check(
+        await db.from("allebl_candidates").insert(
+          added.map((k) => {
+            const [player_id, side] = k.split(":");
+            return { edition_year: year, player_id: Number(player_id), side };
+          }),
+        ),
+      );
+    }
+    for (const k of removed) {
+      const [player_id, side] = k.split(":");
+      check(await db.from("allebl_candidates").delete().eq("edition_year", year).eq("player_id", Number(player_id)).eq("side", side));
+    }
+    const ext = [...wanted].filter((k) => k.endsWith(":ext")).length;
+    const intr = [...wanted].filter((k) => k.endsWith(":int")).length;
+    const warn = ext < 3 || intr < 2 ? " Attention : il faut au moins 3 extérieurs et 2 intérieurs." : "";
+    return `${ext} extérieurs, ${intr} intérieurs.${warn}`;
+  });
+}
+
+/** Crée (ou remplace) le lien secret du capitaine d'une promo. L'ancien lien cesse de marcher. */
+export async function newCaptainLink(fd: FormData) {
+  const db = await adminDb();
+  const year = int(fd, "edition_year")!;
+  const promo = int(fd, "promo")!;
+  const { randomBytes } = await import("node:crypto");
+  check(await db.from("allebl_captain_links").delete().eq("edition_year", year).eq("promo", promo));
+  check(await db.from("allebl_captain_links").insert({ code: randomBytes(9).toString("base64url"), edition_year: year, promo }));
+  publish();
+}
+
+/** Annule (ou rétablit) les bulletins du public venant d'une même empreinte réseau. */
+export async function voidBallots(fd: FormData) {
+  const db = await adminDb();
+  const year = int(fd, "edition_year")!;
+  const ip = text(fd, "ip_hash");
+  const voided = fd.get("voided") === "true";
+  let q = db.from("allebl_votes").update({ voided }).eq("edition_year", year);
+  q = ip ? q.eq("ip_hash", ip) : q.is("ip_hash", null);
+  check(await q);
+  publish();
+}
+
+/** Efface tous les votes d'une édition (après les tests) et rend leurs liens aux capitaines. */
+export async function resetVotes(fd: FormData) {
+  const db = await adminDb();
+  const year = int(fd, "edition_year")!;
+  check(await db.from("allebl_votes").delete().eq("edition_year", year));
+  check(await db.from("allebl_captain_votes").delete().eq("edition_year", year));
+  check(await db.from("allebl_captain_links").update({ used_at: null }).eq("edition_year", year));
+  publish();
+}

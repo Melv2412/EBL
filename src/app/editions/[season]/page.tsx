@@ -7,6 +7,8 @@ import { buildLeague, parseSeason, promoCode, promoName, promoSlug, seasonLabel 
 import { PromoBadge } from "@/components/promo-badge";
 import { PageTitle, Section } from "@/components/ui";
 import { ProposedSemis, ResultsList, SeriesCard, StandingsTable } from "@/components/season";
+import { AllEblCourt } from "@/components/all-ebl-court";
+import { publishedTeam } from "@/lib/allebl";
 
 export const revalidate = 60;
 
@@ -32,9 +34,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EditionPage({ params }: Props) {
   const { season } = await params;
   const year = parseSeason(season);
-  const league = buildLeague(await getLeagueData());
+  const data = await getLeagueData();
+  const league = buildLeague(data);
   const e = year === null ? null : league.edition(year);
   if (!e) notFound();
+  const allEbl = await publishedTeam(e.start_year, data);
 
   const mvps = e.awards.filter((a) => a.type === "mvp");
   const mentions = e.awards.filter((a) => a.type === "mention_honorable");
@@ -56,7 +60,7 @@ export default async function EditionPage({ params }: Props) {
         </Section>
       )}
 
-      {e.teams.length > 0 && (
+      {e.poule.length > 0 && (
         <Section title="La poule" kicker={`${e.teams.length} équipes · chacune joue une fois contre les autres`}>
           <StandingsTable edition={e} league={league} />
         </Section>
@@ -108,6 +112,12 @@ export default async function EditionPage({ params }: Props) {
       {e.poule.length > 0 && (
         <Section title="Résultats">
           <ResultsList edition={e} league={league} />
+        </Section>
+      )}
+
+      {allEbl && (
+        <Section title="All-EBL Team" kicker="L'équipe type de la saison" action={{ href: `/all-ebl?saison=${e.label}`, label: "Détail du vote" }}>
+          <AllEblCourt team={allEbl} players={data.players} promos={data.promos} />
         </Section>
       )}
 
