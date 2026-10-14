@@ -31,7 +31,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="fr" suppressHydrationWarning>
       <head>
         {/* Active les animations d'apparition seulement si le JS tourne. */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        <script dangerouslySetInnerHTML={{ __html:
+              "document.documentElement.classList.add('js');try{if(localStorage.getItem('ebl-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}" }} />
       </head>
       <body className={`${inter.variable} ${oswald.variable} overflow-x-hidden font-sans antialiased`}>
         <a

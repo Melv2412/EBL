@@ -16,8 +16,9 @@
   --gold: #e3b341;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+/* Thème sombre : choisi par le bouton du menu (clair par défaut). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
     --bg: #0f1316;
     --surface: #182026;
     --surface-2: #1f2930;
@@ -29,7 +30,6 @@
     --teal-soft: #13323d;
     --night: #090c0e;
     --night-2: #141a1f;
-  }
 }
 
 @theme inline {

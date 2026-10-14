@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SlidingPill } from "./sliding-pill";
+import { ThemeToggle } from "./theme-toggle";
 
 const NAV = [
   { href: "/", label: "Accueil" },
@@ -46,6 +47,7 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+        <ThemeToggle />
       </div>
     </header>
   );
