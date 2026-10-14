@@ -52,8 +52,11 @@ for (const p of promos) {
 const champions = series
   .map((s) => {
     const p = byNumber.get(s.winner);
-    const level = LEVELS[s.edition_year - p.entry_year];
-    if (!p || !level) return null;
+    if (!p) return null;
+    // Les anciens revenus jouer après le M2 comptent dans la case M2 (« M2 et + »).
+    const i = s.edition_year - p.entry_year;
+    const level = i < 0 ? undefined : LEVELS[Math.min(i, LEVELS.length - 1)];
+    if (!level) return null;
     return { level, season: `${s.edition_year}-${String(s.edition_year + 1).slice(2)}`, number: p.number };
   })
   .filter(Boolean);

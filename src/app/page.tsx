@@ -232,7 +232,7 @@ function Ladder({ league }: { league: League }) {
       <p className="-mt-3 mb-6 max-w-2xl text-sm text-ink-soft">
         Chaque titre est rangé au niveau où il a été gagné. Une promo a cinq ans pour écrire son histoire, et celle qui
         gagnerait à tous les niveaux réussirait le <strong className="text-ink">Grand Chelem</strong>. Chaque
-        niveau porte la couleur de sa cravate.
+        niveau porte la couleur de sa cravate. Les anciens revenus jouer après le M2 comptent dans la dernière case.
       </p>
       {slams.length > 0 && (
         <p className="mb-4 rounded-xl bg-gold/20 p-3 text-sm font-semibold">
@@ -251,19 +251,28 @@ function Ladder({ league }: { league: League }) {
           >
             <p className="flex items-center gap-2 font-display text-3xl font-bold">
               <Tie level={level} size={26} />
-              {level}
+              {level === "M2" ? (
+                <>
+                  M2<span className="text-xl text-ink-soft">&nbsp;et +</span>
+                </>
+              ) : (
+                level
+              )}
             </p>
             {champions.length === 0 ? (
               <p className="ebl-breathe mt-auto text-sm text-ink-soft">À conquérir</p>
             ) : (
               <ul className="mt-3 space-y-2">
-                {champions.map(({ promo, edition }) => (
+                {champions.map(({ promo, edition, alumni }) => (
                   <li key={edition.start_year} className="ebl-drop">
                     <Link href={`/promos/${promoSlug(promo)}`} className="flex items-center gap-2 hover:text-teal">
                       <PromoBadge promo={promo} size={36} className="rounded-lg" />
                       <span className="text-sm leading-tight">
                         <span className="block font-semibold">{promoName(promo)}</span>
-                        <span className="text-xs text-ink-soft">{edition.label}</span>
+                        <span className="text-xs text-ink-soft">
+                          {edition.label}
+                          {alumni && " · anciens"}
+                        </span>
                       </span>
                     </Link>
                   </li>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import type { Player, Promo } from "@/lib/types";
 import { PlayerRail } from "./player-rail";
+import { SlidingPill } from "./sliding-pill";
 
 /** Les 5 places sur le demi-terrain, en % (le panier est en bas). */
 const SPOTS = [
@@ -267,34 +268,51 @@ function Court({ players, promo }: { players: Player[]; promo: Promo }) {
   );
 }
 
-/** Effectif d'une promo : sur le terrain ou en liste. */
+/** Effectif d'une promo : en liste (par défaut) ou sur le terrain. */
 export function TeamView({ players, promo }: { players: Player[]; promo: Promo }) {
-  const hasStarters = players.some((p) => p.is_starter);
-  const [view, setView] = useState<"terrain" | "liste">(hasStarters ? "terrain" : "liste");
+  const [view, setView] = useState<"terrain" | "liste">("liste");
+  // Le contenu sort en fondu, puis le nouvel affichage entre : pas de saut brutal.
+  const [leaving, setLeaving] = useState(false);
+
+  const show = (v: "terrain" | "liste") => {
+    if (v === view || leaving) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setView(v);
+    setLeaving(true);
+    setTimeout(() => {
+      setView(v);
+      setLeaving(false);
+    }, 180);
+  };
 
   return (
     <div>
       <div
         role="tablist"
         aria-label="Affichage de l'effectif"
-        className="mb-5 flex w-full rounded-full border-2 border-line bg-surface p-1 sm:inline-flex sm:w-auto"
+        className="relative mb-5 flex w-full rounded-full border-2 border-line bg-surface p-1 sm:inline-flex sm:w-auto"
       >
-        {(["terrain", "liste"] as const).map((v) => (
+        <SlidingPill deps={view} className="rounded-full bg-teal" />
+        {(["liste", "terrain"] as const).map((v) => (
           <button
             key={v}
             type="button"
             role="tab"
+            data-tab
+            data-active={view === v}
             aria-selected={view === v}
-            onClick={() => setView(v)}
-            className={`flex-1 rounded-full px-5 py-2 text-sm font-semibold transition-colors sm:flex-none ${
-              view === v ? "bg-teal text-white" : "text-ink hover:text-teal"
+            onClick={() => show(v)}
+            className={`relative z-10 flex-1 rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-300 sm:flex-none ${
+              view === v ? "text-white" : "text-ink hover:text-teal"
             }`}
           >
             {v === "terrain" ? "🏀 Terrain" : "☰ Liste"}
           </button>
         ))}
       </div>
-      <div key={view} className="ebl-page">
+      <div
+        key={view}
+        className={`transition-[opacity,transform] duration-200 ease-out ${leaving ? "translate-y-2 opacity-0" : "ebl-page"}`}
+      >
         {view === "terrain" ? <Court players={players} promo={promo} /> : <PlayerRail players={players} promo={promo} />}
       </div>
     </div>

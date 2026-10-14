@@ -20,6 +20,11 @@ export default function AboutPage() {
             racontait de bouche à oreille : ce site la met par écrit.
           </p>
           <p>
+            Au départ, la compétition s&apos;appelait simplement « Interpromo Basket ». Elle a pris une nouvelle
+            dimension sportive et une vraie identité : elle est devenue l&apos;<strong className="text-ink">ESATIC Basket
+            League</strong>, avec son logo, ses promos-équipes et désormais sa mémoire en ligne.
+          </p>
+          <p>
             C&apos;est un projet étudiant, construit par un membre de la promo IT12 (Grizzly) et ouvert à toute la
             communauté basket de l&apos;ESATIC.
           </p>

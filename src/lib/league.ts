@@ -246,12 +246,17 @@ export function buildLeague(data: LeagueData) {
   }
 
   /** Échelle L1 → M2 : les titres rangés par niveau auquel ils ont été gagnés. */
+  /** La dernière case (M2) accueille aussi les titres des anciens revenus jouer après le M2. */
   function ladder() {
     return LEVELS.map((level) => ({
       level,
       champions: editions
-        .filter((e) => e.champion && levelOf(e.champion, e.start_year) === level)
-        .map((e) => ({ promo: e.champion!, edition: e }))
+        .filter((e) => {
+          if (!e.champion) return false;
+          const l = levelOf(e.champion, e.start_year);
+          return l === level || (level === "M2" && l === "Anciens");
+        })
+        .map((e) => ({ promo: e.champion!, edition: e, alumni: levelOf(e.champion!, e.start_year) === "Anciens" }))
         .sort((a, b) => a.edition.start_year - b.edition.start_year),
     }));
   }

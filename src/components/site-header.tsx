@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SlidingPill } from "./sliding-pill";
 
 const NAV = [
   { href: "/", label: "Accueil" },
@@ -28,14 +29,15 @@ export function SiteHeader() {
           </span>
         </Link>
         <nav aria-label="Navigation principale" className="ml-auto min-w-0 overflow-x-auto">
-          <ul className="flex gap-1 text-sm font-medium">
+          <ul className="relative flex gap-1 text-sm font-medium">
+            <SlidingPill deps={pathname} className="rounded-md bg-white/10" />
             {NAV.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} data-tab data-active={isActive(item.href)}>
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className={`block whitespace-nowrap rounded-md px-2 py-2 transition-colors sm:px-3 ${
-                    isActive(item.href) ? "bg-white/10 text-white" : "text-white/70 hover:text-white"
+                  className={`relative block whitespace-nowrap rounded-md px-2 py-2 transition-colors duration-300 sm:px-3 ${
+                    isActive(item.href) ? "text-white" : "text-white/70 hover:text-white"
                   }`}
                 >
                   {item.label}
