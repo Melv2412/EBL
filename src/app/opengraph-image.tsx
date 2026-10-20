@@ -87,7 +87,7 @@ export default async function OgImage() {
     const when = spot.edition.final_date
       ? dateFmt.format(new Date(`${spot.edition.final_date}T00:00:00Z`)) +
         (spot.edition.final_time ? ` · ${spot.edition.final_time.slice(0, 5).replace(":", "h")}` : "")
-      : null;
+      : "Date à confirmer";
     const side = (p: Promo, src: string | null) => (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 400 }}>
         <Badge promo={p} src={src} px={190} />

@@ -111,13 +111,17 @@ function FinalHero({ league, edition, series }: { league: League; edition: Editi
         <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-teal">
           Finale EBL {edition.label}
         </p>
-        {edition.final_date && (
-          <p className="mt-2 text-center font-display text-lg uppercase text-white/80">
-            {dateFmt.format(new Date(`${edition.final_date}T00:00:00Z`))}
-            {edition.final_time ? ` · ${edition.final_time.slice(0, 5).replace(":", "h")}` : " · heure à confirmer"}
-            {edition.venue ? ` · ${edition.venue}` : ""}
-          </p>
-        )}
+        <p className="mt-2 text-center font-display text-lg uppercase text-white/80">
+          {edition.final_date ? (
+            <>
+              {dateFmt.format(new Date(`${edition.final_date}T00:00:00Z`))}
+              {edition.final_time ? ` · ${edition.final_time.slice(0, 5).replace(":", "h")}` : " · heure à confirmer"}
+            </>
+          ) : (
+            "Date à confirmer"
+          )}
+          {edition.venue ? ` · ${edition.venue}` : ""}
+        </p>
 
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 sm:gap-8">
           <Finalist promo={a} year={edition.start_year} league={league} className="ebl-in-left" />
