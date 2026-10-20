@@ -329,3 +329,11 @@ export function buildLeague(data: LeagueData) {
 }
 
 export type League = ReturnType<typeof buildLeague>;
+
+/** Couleur d'accent lisible sur le fond de la promo : une couleur trop sombre est remplacée par l'or EBL. */
+export function readableAccent(hex: string) {
+  const n = Number.parseInt(hex.replace("#", ""), 16);
+  if (!Number.isFinite(n)) return "#e3b341";
+  const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+  return lum < 90 ? "#e3b341" : hex;
+}

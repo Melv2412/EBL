@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import type { AwardType, Player, Promo } from "@/lib/types";
 import { PlayerRail } from "./player-rail";
+import { readableAccent } from "@/lib/league";
 import { SlidingPill } from "./sliding-pill";
 
 /** Les 5 places sur le demi-terrain, en % (le panier est en bas). */
@@ -168,7 +169,7 @@ function Court({ players, promo }: { players: Player[]; promo: Promo }) {
       <div
         ref={court}
         className="relative mx-auto aspect-[15/14] w-full max-w-xl overflow-hidden rounded-2xl border-2 shadow-lg"
-        style={{ borderColor: promo.color_secondary, background: "linear-gradient(180deg, #c98f55, #b07440)" }}
+        style={{ borderColor: readableAccent(promo.color_secondary), background: "linear-gradient(180deg, #c98f55, #b07440)" }}
       >
         <svg viewBox="0 0 150 140" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
           <g fill="none" stroke="rgb(255 255 255 / 0.8)" strokeWidth="0.9">
@@ -196,7 +197,7 @@ function Court({ players, promo }: { players: Player[]; promo: Promo }) {
               }`}
               style={{ left: `${l.x}%`, top: `${l.y}%` }}
             >
-              <span className="relative rounded-full p-0.5 shadow-lg" style={{ background: promo.color_secondary }}>
+              <span className="relative rounded-full p-0.5 shadow-lg" style={{ background: readableAccent(promo.color_secondary) }}>
                 <span className="block sm:hidden">
                   <Avatar player={p} promo={promo} size={52} />
                 </span>
@@ -258,7 +259,7 @@ function Court({ players, promo }: { players: Player[]; promo: Promo }) {
       {dragged && drag && (
         <div
           className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 scale-110 rounded-full p-0.5 shadow-2xl"
-          style={{ left: drag.px, top: drag.py, background: promo.color_secondary }}
+          style={{ left: drag.px, top: drag.py, background: readableAccent(promo.color_secondary) }}
           aria-hidden
         >
           <Avatar player={dragged} promo={promo} size={60} />

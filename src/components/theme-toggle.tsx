@@ -23,7 +23,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? "Passer en mode clair" : "Passer en mode sombre"}
       title={dark ? "Mode clair" : "Mode sombre"}
-      className="shrink-0 rounded-md p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+      className="shrink-0 rounded-md p-1.5 text-white/70 sm:p-2 transition-colors hover:bg-white/10 hover:text-white"
     >
       {dark ? (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>

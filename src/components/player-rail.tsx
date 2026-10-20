@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
 import type { AwardType, Player, Promo } from "@/lib/types";
 import { AwardIcon } from "./award-icon";
+import { readableAccent } from "@/lib/league";
 
 /**
  * Effectif sur une seule ligne : on glisse au doigt, ou avec les flèches sur ordinateur.
@@ -77,7 +78,7 @@ export function PlayerRail({
           >
             <figure
               className="overflow-hidden rounded-xl border-2 bg-night p-1.5 shadow-lg"
-              style={{ borderColor: promo.color_secondary }}
+              style={{ borderColor: readableAccent(promo.color_secondary) }}
             >
               <div className="relative overflow-hidden rounded-lg">
                 {pl.photo_url ? (
@@ -113,7 +114,7 @@ export function PlayerRail({
               </div>
               <figcaption className="mt-1.5 rounded-md px-2.5 py-2" style={{ background: promo.color_primary }}>
                 <p className="truncate font-display text-base font-bold uppercase leading-tight text-white">{pl.full_name}</p>
-                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: promo.color_secondary }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: readableAccent(promo.color_secondary) }}>
                   {pl.position ?? "Joueur"}
                   {pl.is_captain ? " · Capitaine" : ""}
                 </p>
