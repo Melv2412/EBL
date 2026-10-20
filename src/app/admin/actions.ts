@@ -172,9 +172,10 @@ export async function saveSeries(_: FormState, fd: FormData) {
     const id = int(fd, "id");
     const promo_a = int(fd, "promo_a");
     const promo_b = int(fd, "promo_b");
-    const best_of = int(fd, "best_of") ?? 1;
-    const edition_year = int(fd, "edition_year");
     const round = text(fd, "round");
+    // La finale se joue le jour des finales multisports : toujours un match sec.
+    const best_of = round === "finale" ? 1 : (int(fd, "best_of") ?? 1);
+    const edition_year = int(fd, "edition_year");
     const need = Math.ceil(best_of / 2);
 
     if (!promo_a || !promo_b || promo_a === promo_b) throw new Error("Choisis deux promos différentes.");

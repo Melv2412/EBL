@@ -122,8 +122,10 @@ export function buildLeague(data: LeagueData) {
   const promoBy = new Map(data.promos.map((p) => [p.number, p]));
   const playerBy = new Map(data.players.map((p) => [p.id, p]));
   const promo = (n: number) => promoBy.get(n)!;
+  // La finale se joue le jour des finales multisports (basket, foot, handball) : toujours un match sec.
   const views: SeriesView[] = data.series.map((s) => ({
     ...s,
+    best_of: s.round === "finale" ? 1 : s.best_of,
     games: data.games.filter((g) => g.series_id === s.id).sort((a, b) => a.game_no - b.game_no),
   }));
 
