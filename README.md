@@ -43,6 +43,14 @@ Chaque photo possède aussi un cadrage horizontal et vertical réglable avec ape
 
 La liste personnalisée, les cadrages et les photos envoyées appartiennent à la base et au stockage Supabase utilisés ; ils ne sont pas transférés par un merge Git vers une autre base.
 
+## Votes et archives All-EBL
+
+La page `/vote` propose le vote ouvert le plus récent parmi les saisons publiées. À défaut, elle annonce la prochaine ouverture selon sa date, ou affiche « Aucun vote ouvert ». Le bulletin reste inaccessible avant l'ouverture et après la clôture.
+
+La page `/all-ebl` présente uniquement les saisons dont le vote est terminé et qui sont publiées, avec la plus récente par défaut. Le badge de saison devient un sélecteur lorsqu'il y a plusieurs saisons disponibles ; le choix figure dans l'URL (`?saison=2025-26`). Avec une seule saison, il reste un simple badge. Sans résultats publiés, la page affiche un message d'attente.
+
+Les admins connectés conservent l'accès aux saisons configurées non publiées et aux résultats provisoires. Ces changements d'affichage ne modifient ni les bulletins, ni les calculs des résultats, ni la base Supabase ; aucune nouvelle migration n'est nécessaire.
+
 ## Organisation
 
 - `src/lib/league.ts` : logique métier (niveaux L1–M2, parcours, échelle, enjeux de la finale).

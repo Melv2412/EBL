@@ -9,6 +9,7 @@ import { AllEblCourt } from "@/components/all-ebl-court";
 import { AwardIcon } from "@/components/award-icon";
 import { AllEblResults } from "@/components/all-ebl-results";
 import { PageTitle, Section } from "@/components/ui";
+import { SeasonSelect } from "./season-select";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +21,20 @@ export default async function AllEblPage({ searchParams }: Props) {
   const [{ settings, ready }, admin, data] = await Promise.all([getAllEbl(), currentAdmin(), getLeagueData()]);
   if (!ready) notFound();
 
-  // Une saison n'apparaît qu'une fois configurée, et publiée (sauf pour les admins).
-  const seasons = settings.filter((s) => votePhase(s) !== "non_configure" && (s.allebl_published || admin));
+  const seasons = settings.filter((s) =>
+    admin ? votePhase(s) !== "non_configure" : s.allebl_published && votePhase(s) === "clos",
+  );
   if (seasons.length === 0) {
     if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
-    notFound();
+    return (
+      <>
+        <PageTitle kicker="Les équipes élues" title="All-EBL Team" />
+        <Section title="Aucune équipe publiée pour le moment">
+          <p className="text-ink-soft">Les équipes seront disponibles après la clôture des votes et leur publication.</p>
+          <Link href="/vote" className="mt-4 inline-block font-semibold text-teal">Voir les votes</Link>
+        </Section>
+      </>
+    );
   }
 
   const wanted = parseSeason((await searchParams).saison ?? "");
@@ -62,7 +72,12 @@ export default async function AllEblPage({ searchParams }: Props) {
     <div className={styles.page}>
       <header className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.season}><span aria-hidden><AwardIcon type="mvp_finale" size={17} /></span> Saison {label}</p>
+          <div className={styles.season}>
+            <span aria-hidden><AwardIcon type="mvp_finale" size={17} /></span>
+            {seasons.length > 1 ? (
+              <SeasonSelect seasons={seasons.map((season) => seasonLabel(season.start_year))} selected={label} />
+            ) : <span>Saison {label}</span>}
+          </div>
           <h1 className={styles.title}>All-EBL Team</h1>
           <p className={styles.intro}>
             3 extérieurs. 2 intérieurs. L&apos;équipe de la saison,
@@ -73,25 +88,11 @@ export default async function AllEblPage({ searchParams }: Props) {
       </header>
 
       <div className={styles.content}>
-      {admin && !s.allebl_published && (
+      {admin && (!s.allebl_published || phase !== "clos") && (
           <p className={styles.notice}>
-            Aperçu admin : cette saison n&apos;est pas encore publique.
+        Aperçu admin : cette saison n&apos;est pas encore visible dans les résultats publics.
             {phase !== "clos" && " Le décompte affiché est provisoire."}
           </p>
-      )}
-
-      {seasons.length > 1 && (
-        <nav className={styles.seasons} aria-label="Saisons">
-          {seasons.map((x) => (
-            <Link
-              key={x.start_year}
-              href={`/all-ebl?saison=${seasonLabel(x.start_year)}`}
-              aria-current={x.start_year === s.start_year ? "page" : undefined}
-            >
-              {seasonLabel(x.start_year)}
-            </Link>
-          ))}
-        </nav>
       )}
 
         {phase === "a_venir" && (

@@ -16,12 +16,24 @@ export default async function VotePage() {
   const [{ settings, candidates, ready }, admin, data] = await Promise.all([getAllEbl(), currentAdmin(), getLeagueData()]);
   if (!ready) notFound();
 
-  // L'édition dont le vote est ouvert, sinon la plus récente configurée.
   const visible = settings.filter((s) => s.allebl_published || admin);
-  const s = visible.find((x) => votePhase(x) === "ouvert") ?? visible.find((x) => votePhase(x) !== "non_configure");
+  const upcoming = visible
+    .filter((season) => votePhase(season) === "a_venir")
+    .sort((first, second) => Date.parse(first.allebl_opens_at!) - Date.parse(second.allebl_opens_at!));
+  const s = visible.find((season) => votePhase(season) === "ouvert")
+    ?? upcoming[0]
+    ?? (admin ? visible.find((season) => votePhase(season) === "clos") : undefined);
   if (!s) {
     if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
-    notFound();
+    return (
+      <>
+        <PageTitle kicker="All-EBL Team" title="Vote All-EBL" />
+        <Section title="Aucun vote ouvert">
+          <p className="text-ink-soft">Aucun vote public n&apos;est ouvert ou annoncé pour le moment.</p>
+          <Link href="/all-ebl" className="mt-4 inline-block font-semibold text-teal">Voir les équipes élues</Link>
+        </Section>
+      </>
+    );
   }
 
   const phase = votePhase(s);

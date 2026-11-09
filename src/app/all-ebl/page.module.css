@@ -54,6 +54,7 @@
 .season {
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
   gap: 0.6rem;
   border: 1px solid #9a773c;
   border-radius: 4px;
@@ -106,28 +107,22 @@
   line-height: 1.7;
 }
 
-.seasons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+.season:has(select) { padding-block: 0; }
+.season > span { flex-shrink: 0; }
+.seasonSelect {
+  appearance: auto;
+  min-width: 0;
+  min-height: 44px;
+  max-width: 100%;
+  background: transparent;
+  color: inherit;
+  color-scheme: dark;
+  font: inherit;
+  cursor: pointer;
 }
-
-.seasons a {
-  border: 1px solid var(--all-line);
-  border-radius: 4px;
-  padding: 0.5rem 0.9rem;
-  color: var(--all-muted);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.seasons a[aria-current="page"] {
-  border-color: var(--all-gold);
-  color: var(--all-gold);
-}
-
-.seasons a:hover { background: var(--all-panel); }
+.seasonSelect option { background: #101214; color: #f0cb8e; }
+.seasonSelect:focus-visible { outline: 2px solid #f0cb8e; outline-offset: 2px; }
+.seasonSelect:disabled { cursor: progress; opacity: 0.65; }
 
 .page :global([data-all-ebl-court="showcase"]) {
   min-height: 350px;
