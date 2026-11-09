@@ -40,14 +40,22 @@ export default async function EditionPage({ params }: Props) {
   if (!e) notFound();
   const allEbl = await publishedTeam(e.start_year, data);
 
-
   return (
     <>
       <PageTitle
         kicker={e.status === "en_cours" ? "Édition en cours" : "Édition"}
         title={`EBL ${e.label}`}
         intro={e.summary ?? undefined}
-      />
+      >
+        {allEbl && (
+          <Link
+            href={`/all-ebl?saison=${e.label}`}
+            className="mt-6 inline-block rounded-full bg-gold px-5 py-2 text-sm font-semibold text-night transition hover:-translate-y-0.5"
+          >
+            ⭐ All-EBL Team {e.label} →
+          </Link>
+        )}
+      </PageTitle>
 
       {!e.known && (
         <Section title="À raconter">

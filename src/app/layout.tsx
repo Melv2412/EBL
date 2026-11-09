@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Oswald } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AdminBar } from "@/components/admin-bar";
+import { allEblNav } from "@/lib/allebl";
 import { RevealObserver } from "@/components/motion";
 import "./globals.css";
 
@@ -22,11 +24,15 @@ export const metadata: Metadata = {
   },
 };
 
+// Le menu suit l'état du vote All-EBL : on le relit au plus toutes les minutes.
+export const revalidate = 60;
+
 export const viewport: Viewport = {
   themeColor: "#15191d",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const allEbl = await allEblNav();
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
@@ -41,7 +47,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           Aller au contenu
         </a>
-        <SiteHeader />
+        <AdminBar />
+        <SiteHeader allEbl={allEbl} />
         <main id="contenu" className="min-h-[70vh]">
           {children}
         </main>

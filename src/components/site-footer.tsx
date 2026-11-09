@@ -22,6 +22,9 @@ export function SiteFooter() {
           <Link href="/a-propos" className="block hover:text-white">
             À propos et mentions
           </Link>
+          <Link href="/admin" className="block text-xs text-white/40 hover:text-white">
+            Espace admin
+          </Link>
         </div>
       </div>
     </footer>

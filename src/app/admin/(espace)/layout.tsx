@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentAdmin } from "@/lib/supabase-server";
-import { signOut } from "../actions";
+import { AdminSidebar } from "../admin-sidebar";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -12,30 +11,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!admin) redirect("/admin/connexion");
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6">
-      <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line pb-4">
-        <Link href="/admin" className="font-display text-xl font-bold uppercase">
-          Admin EBL
-        </Link>
-        <nav className="flex flex-wrap gap-x-3 gap-y-1 text-sm font-medium text-ink-soft">
-          <Link href="/admin" className="hover:text-teal">
-            Éditions
-          </Link>
-          <Link href="/admin/promos" className="hover:text-teal">
-            Promos et joueurs
-          </Link>
-          <Link href="/admin/historique" className="hover:text-teal">
-            Historique
-          </Link>
-          <Link href="/admin/compte" className="hover:text-teal">
-            Mon compte
-          </Link>
-        </nav>
-        <form action={signOut} className="ml-auto">
-          <button className="text-sm text-ink-soft hover:text-ink">Déconnexion ({admin.user_metadata.username ?? admin.email})</button>
-        </form>
-      </div>
-      {children}
+    <div className="md:flex">
+      <AdminSidebar username={admin.user_metadata.username ?? admin.email ?? "admin"} />
+      <div className="mx-auto w-full min-w-0 max-w-4xl px-4 py-6">{children}</div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { seasonLabel } from "./league";
 import type { Player, Promo } from "./types";
 
 /** Saison de lancement de l'All-EBL Team. */
@@ -148,4 +149,21 @@ export async function publishedTeam(year: number, data: { players: Player[] }) {
   const name = (id: number) => data.players.find((p) => p.id === id)?.full_name ?? "";
   const team = electTeam(scoreTally(await getTally(year)), name);
   return team.ext.length + team.int.length > 0 ? team : null;
+}
+
+/** Entrée « All-EBL » du menu : le vote s'il est ouvert, sinon la dernière équipe publiée. */
+export async function allEblNav() {
+  const { settings } = await getAllEbl();
+  const published = settings.filter((s) => s.allebl_published);
+  if (published.some((s) => votePhase(s) === "ouvert")) return { href: "/vote", live: true };
+  const done = published.find((s) => votePhase(s) === "clos");
+  return done ? { href: `/all-ebl?saison=${seasonLabel(done.start_year)}`, live: false } : null;
+}
+
+/** La dernière All-EBL Team publiée (vote clos), pour l'accueil. */
+export async function latestPublishedTeam(data: { players: Player[] }) {
+  const { settings } = await getAllEbl();
+  const s = settings.find((x) => x.allebl_published && votePhase(x) === "clos");
+  const team = s ? await publishedTeam(s.start_year, data) : null;
+  return s && team ? { year: s.start_year, team } : null;
 }

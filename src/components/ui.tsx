@@ -33,13 +33,24 @@ export function Section({
   );
 }
 
-export function PageTitle({ kicker, title, intro }: { kicker?: string; title: string; intro?: React.ReactNode }) {
+export function PageTitle({
+  kicker,
+  title,
+  intro,
+  children,
+}: {
+  kicker?: string;
+  title: string;
+  intro?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
   return (
     <div className="court-lines bg-night text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
         {kicker && <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal">{kicker}</p>}
         <h1 className="font-display text-4xl font-bold uppercase sm:text-6xl">{title}</h1>
         {intro && <p className="mt-3 max-w-2xl text-white/70">{intro}</p>}
+        {children}
       </div>
     </div>
   );

@@ -182,3 +182,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .ebl-page { animation: none; }
 }
+
+/* Admin sur mobile : la barre d'onglets fixe en bas ne doit pas cacher la fin de la page. */
+@media (width < 48rem) {
+  body:has([data-admin-tabbar]) { padding-bottom: 4.5rem; }
+}
