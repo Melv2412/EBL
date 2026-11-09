@@ -3,6 +3,8 @@ import { getLeagueData } from "@/lib/data";
 import { buildLeague, currentSeasonYear, promoName } from "@/lib/league";
 import { saveEdition } from "../actions";
 import { ActionForm, inputCls, labelCls } from "../form";
+import { HomeSettingsForm } from "../home-settings-form";
+import { getHomeSettings } from "@/lib/home-settings";
 
 const STATUS_LABEL = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée" } as const;
 
@@ -10,9 +12,28 @@ export default async function AdminHome() {
   const league = buildLeague(await getLeagueData());
   const pending = league.editions.find((e) => e.final && e.final.winner === null);
   const nextYear = Math.max(currentSeasonYear(), ...league.editions.map((e) => e.start_year + 1));
+  const { settings, ready, imagesReady } = await getHomeSettings();
+  const champion = league.editions.find((edition) => edition.champion);
 
   return (
     <div className="space-y-8">
+      <section className="border-b border-line pb-6">
+        <h1 className="mb-4 font-display text-2xl font-bold uppercase">Affichage de l&apos;accueil</h1>
+        {ready ? (
+          <HomeSettingsForm
+            key={JSON.stringify(settings)}
+            settings={settings}
+            imagesReady={imagesReady}
+            finalLabel={pending?.label ?? null}
+            championLabel={champion?.champion ? `Champion ${champion.label} : ${promoName(champion.champion)}` : null}
+          />
+        ) : (
+          <p className="text-sm text-ink-soft">
+            Réglages indisponibles. Applique la migration <code>0010_homepage_settings.sql</code> dans Supabase.
+            Le mode automatique reste actif.
+          </p>
+        )}
+      </section>
       {pending && (
         <Link
           href={`/admin/editions/${pending.start_year}`}

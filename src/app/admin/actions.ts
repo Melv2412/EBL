@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { currentAdmin, supabaseServer } from "@/lib/supabase-server";
+import { getLeagueData } from "@/lib/data";
+import { buildLeague } from "@/lib/league";
+import { isHomeMode, type HomeSettings } from "@/lib/home-settings";
+import { HOME_SLIDES, orderedHomeSlides } from "@/lib/home-slides";
+import { randomUUID } from "node:crypto";
 
 export type FormState = { ok?: string; error?: string } | null;
 
@@ -114,6 +119,64 @@ export async function signOut() {
   const db = await supabaseServer();
   await db.auth.signOut();
   redirect("/admin/connexion");
+}
+
+export async function saveHomeSettings(_: FormState, fd: FormData) {
+  return run(async () => {
+    const db = await adminDb();
+    const mode = String(fd.get("home_mode") ?? "");
+    if (!isHomeMode(mode)) throw new Error("Choisis un mode d'affichage valide.");
+    const current = check<HomeSettings>(await db.from("homepage_settings").select("*").eq("id", true).single());
+    const imagesReady = "slides" in current;
+    const currentSlides = current.slides ?? orderedHomeSlides(current.slide_order);
+    const available = new Map([...HOME_SLIDES, ...currentSlides].map((slide) => [slide.id, slide]));
+    const slide_order = fd.getAll("slide").map(String);
+    if (
+      new Set(slide_order).size !== slide_order.length ||
+      slide_order.some((id) => !available.has(id))
+    ) throw new Error("La liste des photos a changé. Recharge la page avant d'enregistrer.");
+    const image = fd.get("new_slide");
+    const hasImage = image instanceof File && image.size > 0;
+    if (!imagesReady && (hasImage || slide_order.length !== HOME_SLIDES.length)) {
+      throw new Error("Applique la migration 0011_homepage_slides.sql pour ajouter ou retirer des photos.");
+    }
+    if (hasImage && !["image/jpeg", "image/png", "image/webp"].includes(image.type)) {
+      throw new Error("Choisis une photo JPEG, PNG ou WebP.");
+    }
+
+    if (mode === "final" || mode === "champion") {
+      const league = buildLeague(await getLeagueData());
+      if (mode === "final" && !league.editions.some((edition) => edition.final && edition.final.winner === null)) {
+        throw new Error("Aucune finale en attente de résultat.");
+      }
+      if (mode === "champion" && !league.editions.some((edition) => edition.champion)) {
+        throw new Error("Aucun champion connu.");
+      }
+    }
+    const slides = slide_order.map((id) => {
+      const slide = available.get(id)!;
+      const coordinate = (axis: "x" | "y") => {
+        const value = fd.get(`focus_${axis}_${id}`);
+        if (value === null) return slide.position?.[axis] ?? 50;
+        if (!imagesReady) throw new Error("Applique la migration 0011_homepage_slides.sql pour enregistrer le cadrage.");
+        if (typeof value !== "string" || value.trim() === "") throw new Error("Cadrage invalide.");
+        const result = Number(value);
+        if (!Number.isFinite(result) || result < 0 || result > 100) throw new Error("Le cadrage doit être compris entre 0 et 100.");
+        return result;
+      };
+      return { ...slide, position: { x: coordinate("x"), y: coordinate("y") } };
+    });
+    if (hasImage) {
+      const id = randomUUID();
+      const src = await upload(db, image, `diaporama/${id}`);
+      if (src) {
+        slides.push({ id, src, position: { x: 50, y: 50 } });
+        slide_order.push(id);
+      }
+    }
+    check(await db.from("homepage_settings").update({ mode, slide_order, ...(imagesReady ? { slides } : {}) }).eq("id", true).select("id").single());
+    return "Affichage de l'accueil enregistré.";
+  });
 }
 
 // ---------- éditions ----------

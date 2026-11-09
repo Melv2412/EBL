@@ -293,20 +293,12 @@ export function buildLeague(data: LeagueData) {
 
   /**
    * Ce que l'accueil met en avant : la finale à venir, sinon le dernier champion.
-   * Le champion reste à l'affiche jusqu'au premier match joué de la saison suivante.
+  * Le champion reste à l'affiche jusqu'à la prochaine finale connue.
    */
   function spotlight() {
     const upcoming = editions.find((e) => e.final && e.final.winner === null);
     if (upcoming) return { kind: "final" as const, edition: upcoming, series: upcoming.final! };
     const last = editions.find((e) => e.champion);
-    const live = editions.find(
-      (e) =>
-        e.status === "en_cours" &&
-        !e.champion &&
-        (!last || e.start_year > last.start_year) &&
-        e.poule.some((s) => s.winner !== null),
-    );
-    if (live) return { kind: "season" as const, edition: live };
     if (last) return { kind: "champion" as const, edition: last };
     return null;
   }

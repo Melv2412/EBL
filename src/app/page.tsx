@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { getLeagueData } from "@/lib/data";
+import { getHomeSettings } from "@/lib/home-settings";
+import { orderedHomeSlides } from "@/lib/home-slides";
+import { HomeSlideshow } from "@/components/home-slideshow";
 import {
   WHATSAPP_URL,
   LEVEL_TIE,
@@ -20,7 +23,6 @@ import { latestPublishedTeam, openPublishedVote, type ScoredCandidate } from "@/
 import { Tie } from "@/components/icons";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
-import { ResultsList, StandingsTable } from "@/components/season";
 
 export const revalidate = 60;
 
@@ -29,7 +31,16 @@ const dateFmt = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeri
 export default async function Home() {
   const data = await getLeagueData();
   const league = buildLeague(data);
-  const spot = league.spotlight();
+  const { settings } = await getHomeSettings();
+  const finalEdition = league.editions.find((edition) => edition.final && edition.final.winner === null);
+  const championEdition = league.editions.find((edition) => edition.champion);
+  const spot = settings.mode === "auto"
+    ? league.spotlight()
+    : settings.mode === "final" && finalEdition
+      ? { kind: "final" as const, edition: finalEdition, series: finalEdition.final! }
+      : settings.mode === "champion" && championEdition
+        ? { kind: "champion" as const, edition: championEdition }
+        : null;
   const voteOpen = await openPublishedVote();
   const allEbl = voteOpen ? null : await latestPublishedTeam(data);
   const known = league.editions.filter((e) => e.known);
@@ -39,22 +50,7 @@ export default async function Home() {
     <>
       {spot?.kind === "final" && <FinalHero league={league} edition={spot.edition} series={spot.series} />}
       {spot?.kind === "champion" && <ChampionHero edition={spot.edition} />}
-      {spot?.kind === "season" && <SeasonHero league={league} edition={spot.edition} />}
-
-      {voteOpen && (
-        <section className="mx-auto max-w-6xl px-4 pt-10">
-          <Link
-            href="/vote"
-            className="flex flex-col items-start gap-3 rounded-2xl bg-gold p-5 text-night shadow-lg transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <span>
-              <span className="block text-xs font-semibold uppercase tracking-[0.2em]">Vote ouvert</span>
-              <span className="font-display text-2xl font-bold uppercase">Élis l&apos;All-EBL Team {voteOpen}</span>
-            </span>
-            <span className="rounded-full bg-night px-4 py-2 text-sm font-semibold text-white">Voter →</span>
-          </Link>
-        </section>
-      )}
+      {!spot && <HomeSlideshow key={JSON.stringify(settings.slides ?? settings.slide_order)} slides={settings.slides ?? orderedHomeSlides(settings.slide_order)} />}
 
       {allEbl && <AllEblTeaser year={allEbl.year} team={allEbl.team} players={data.players} />}
 
@@ -318,27 +314,3 @@ function Ladder({ league }: { league: League }) {
   );
 }
 
-function SeasonHero({ league, edition }: { league: League; edition: EditionView }) {
-  return (
-    <>
-      <section className="court-lines bg-night text-white">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-teal">Saison en cours</p>
-          <h1 className="font-display text-5xl font-bold uppercase sm:text-7xl">EBL {edition.label}</h1>
-          <p className="mt-2 max-w-xl text-white/70">
-            {edition.teams.length} équipes dans une poule unique. Les 4 premières vont en demi-finales.
-          </p>
-          <Link href={`/editions/${edition.label}`} className="mt-4 inline-block text-sm font-semibold text-teal">
-            Tout le classement et les résultats →
-          </Link>
-        </div>
-      </section>
-      <Section title="Classement" kicker="Poule">
-        <StandingsTable edition={edition} league={league} compact />
-      </Section>
-      <Section title="Derniers résultats" action={{ href: `/editions/${edition.label}`, label: "Tous les résultats" }}>
-        <ResultsList edition={edition} league={league} limit={5} />
-      </Section>
-    </>
-  );
-}

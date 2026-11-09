@@ -2,18 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import { SIDE_LABEL, electTeam, formatWhen, getAllEbl, getTally, scoreTally, votePhase } from "@/lib/allebl";
-import { buildLeague, parseSeason, promoCode, promoName, seasonLabel } from "@/lib/league";
+import { electTeam, formatWhen, getAllEbl, getTally, scoreTally, votePhase } from "@/lib/allebl";
+import { buildLeague, parseSeason, promoCode, promoName, promoSlug, seasonLabel } from "@/lib/league";
 import { currentAdmin, supabaseServer } from "@/lib/supabase-server";
 import { AllEblCourt } from "@/components/all-ebl-court";
+import { AwardIcon } from "@/components/award-icon";
+import { AllEblResults } from "@/components/all-ebl-results";
 import { PageTitle, Section } from "@/components/ui";
+import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "All-EBL Team", robots: { index: false, follow: false } };
 
 type Props = { searchParams: Promise<{ saison?: string }> };
-
-const pct = (x: number) => `${Math.round(x * 100)} %`;
 
 export default async function AllEblPage({ searchParams }: Props) {
   const [{ settings, ready }, admin, data] = await Promise.all([getAllEbl(), currentAdmin(), getLeagueData()]);
@@ -39,34 +40,53 @@ export default async function AllEblPage({ searchParams }: Props) {
   const team = electTeam(scored, name);
   const showResults = phase === "clos" || (admin && scored.some((x) => x.public_ballots || x.captain_ballots));
   const elected = new Set([...team.ext, ...team.int].map((c) => `${c.side}-${c.player_id}`));
+  const rows = [...scored]
+    .sort((a, b) => (a.side === b.side ? b.score - a.score : a.side === "ext" ? -1 : 1))
+    .map((candidate) => {
+      const player = data.players.find((entry) => entry.id === candidate.player_id);
+      const promo = player && league.promo(player.promo);
+      return {
+        ...candidate,
+        name: player?.full_name ?? "Joueur indisponible",
+        promoLabel: promo ? `${promoName(promo)} · ${promoCode(promo)}` : "",
+        promoHref: promo ? `/promos/${promoSlug(promo)}` : null,
+        photoUrl: player?.photo_url ?? null,
+        elected: elected.has(`${candidate.side}-${candidate.player_id}`),
+      };
+    });
+  const selectedCount = team.ext.length + team.int.length;
+  const publicBallots = scored[0]?.public_ballots ?? 0;
+  const captainBallots = scored[0]?.captain_ballots ?? 0;
 
   return (
-    <>
-      <PageTitle
-        kicker="L'équipe type de la saison"
-        title="All-EBL Team"
-        intro="3 extérieurs et 2 intérieurs, élus moitié par le public, moitié par les capitaines de chaque promo."
-      />
+    <div className={styles.page}>
+      <header className={styles.hero}>
+        <div className={styles.heroInner}>
+          <p className={styles.season}><span aria-hidden><AwardIcon type="mvp_finale" size={17} /></span> Saison {label}</p>
+          <h1 className={styles.title}>All-EBL Team</h1>
+          <p className={styles.intro}>
+            3 extérieurs. 2 intérieurs. L&apos;équipe de la saison,
+            élue par le public et les capitaines de chaque promo.
+          </p>
+          <span className={styles.heroRule} aria-hidden />
+        </div>
+      </header>
 
+      <div className={styles.content}>
       {admin && !s.allebl_published && (
-        <div className="mx-auto mt-6 max-w-6xl px-4">
-          <p className="rounded-xl bg-gold/20 p-3 text-sm font-semibold">
+          <p className={styles.notice}>
             Aperçu admin : cette saison n&apos;est pas encore publique.
             {phase !== "clos" && " Le décompte affiché est provisoire."}
           </p>
-        </div>
       )}
 
       {seasons.length > 1 && (
-        <nav className="mx-auto mt-8 flex max-w-6xl flex-wrap gap-2 px-4" aria-label="Saisons">
+        <nav className={styles.seasons} aria-label="Saisons">
           {seasons.map((x) => (
             <Link
               key={x.start_year}
               href={`/all-ebl?saison=${seasonLabel(x.start_year)}`}
               aria-current={x.start_year === s.start_year ? "page" : undefined}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
-                x.start_year === s.start_year ? "bg-teal text-white" : "border border-line text-ink-soft hover:text-ink"
-              }`}
             >
               {seasonLabel(x.start_year)}
             </Link>
@@ -74,69 +94,61 @@ export default async function AllEblPage({ searchParams }: Props) {
         </nav>
       )}
 
-      <Section title={`Saison ${label}`}>
-        {phase === "a_venir" && <p className="text-ink-soft">Le vote ouvrira {formatWhen(s.allebl_opens_at)}.</p>}
+        {phase === "a_venir" && (
+          <section className={styles.status}>
+            <p className={styles.eyebrow}>La sélection se prépare</p>
+            <h2>À chaque saison, son cinq majeur.</h2>
+            <p>Le vote ouvrira {formatWhen(s.allebl_opens_at)}.</p>
+          </section>
+        )}
         {phase === "ouvert" && !showResults && (
-          <div className="rounded-2xl border border-teal bg-teal-soft p-6 text-center">
-            <p className="font-display text-2xl font-bold uppercase">Le vote est ouvert</p>
-            <p className="mt-1 text-sm text-ink-soft">Jusqu&apos;au {formatWhen(s.allebl_closes_at)}.</p>
-            <Link href="/vote" className="mt-4 inline-block rounded-full bg-teal px-5 py-2 font-semibold text-white">
-              Voter →
+          <section className={styles.status}>
+            <p className={styles.eyebrow}><span className={styles.liveDot} aria-hidden /> Vote ouvert</p>
+            <h2>Le prochain cinq majeur se joue maintenant.</h2>
+            <p>
+              {s.allebl_closes_at && <>Vote jusqu&apos;au {formatWhen(s.allebl_closes_at)}. </>}
+              L&apos;équipe et le classement seront dévoilés après la clôture.
+            </p>
+            <Link href="/vote" className={styles.voteButton}>
+              Composer mon cinq <span aria-hidden>→</span>
             </Link>
-          </div>
+          </section>
         )}
 
         {showResults && (
-          <div className="space-y-8">
-            {team.ext.length + team.int.length > 0 ? (
-              <AllEblCourt team={team} players={data.players} promos={data.promos} />
-            ) : (
-              <p className="text-ink-soft">Aucun vote pour cette saison.</p>
-            )}
-
-            <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
-              <table className="w-full min-w-[28rem] text-sm">
-                <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-ink-soft">
-                    <th className="py-3 pl-4 font-semibold">Joueur</th>
-                    <th className="py-3 font-semibold">Poste</th>
-                    <th className="px-2 py-3 text-right font-semibold">Public</th>
-                    <th className="px-2 py-3 text-right font-semibold">Capitaines</th>
-                    <th className="py-3 pl-2 pr-4 text-right font-semibold">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...scored]
-                    .sort((a, b) => (a.side === b.side ? b.score - a.score : a.side === "ext" ? -1 : 1))
-                    .map((c) => {
-                      const p = data.players.find((x) => x.id === c.player_id);
-                      const pr = p && league.promo(p.promo);
-                      const won = elected.has(`${c.side}-${c.player_id}`);
-                      return (
-                        <tr key={`${c.side}-${c.player_id}`} className={`border-b border-line last:border-0 ${won ? "font-semibold" : ""}`}>
-                          <td className="py-2.5 pl-4">
-                            {won && "⭐ "}
-                            {p?.full_name}
-                            {pr && <span className="ml-1 text-xs font-normal text-ink-soft">{promoName(pr)} · {promoCode(pr)}</span>}
-                          </td>
-                          <td className="py-2.5 text-ink-soft">{SIDE_LABEL[c.side]}</td>
-                          <td className="px-2 py-2.5 text-right tabular-nums">{pct(c.publicShare)}</td>
-                          <td className="px-2 py-2.5 text-right tabular-nums">{pct(c.captainShare)}</td>
-                          <td className="py-2.5 pl-2 pr-4 text-right tabular-nums">{c.score.toFixed(1)}</td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-              <p className="border-t border-line px-4 py-2 text-xs text-ink-soft">
-                {scored[0]?.public_ballots ?? 0} bulletins du public · {scored[0]?.captain_ballots ?? 0} bulletins de
-                capitaines. Pourcentage = part des bulletins qui ont choisi le joueur.
-              </p>
-            </div>
-          </div>
+          <>
+            <AllEblResults
+              rows={rows}
+              provisional={phase !== "clos"}
+              court={selectedCount > 0 ? (
+                <AllEblCourt team={team} players={data.players} promos={data.promos} showcase />
+              ) : (
+                <div className={styles.emptyResults}>
+                  <AwardIcon type="mvp_finale" size={36} />
+                  <h3>Aucun vote pour cette saison.</h3>
+                  <p>Aucune équipe n&apos;a été élue.</p>
+                </div>
+              )}
+            />
+            <dl className={styles.summary}>
+              <div><dt>Saison</dt><dd>{label}</dd></div>
+              <div><dt>Joueurs sélectionnés</dt><dd>{selectedCount}<span> / 5</span></dd></div>
+              <div><dt>Bulletins du public</dt><dd>{publicBallots}</dd></div>
+              <div><dt>Bulletins des capitaines</dt><dd>{captainBallots}</dd></div>
+            </dl>
+            <p className={styles.formula}>
+              {publicBallots > 0 && captainBallots > 0
+                ? "Score sur 100 : 50 % public, 50 % capitaines."
+                : publicBallots > 0
+                  ? "Score sur 100 : seuls les bulletins du public ont été exprimés, ils comptent pour 100 %."
+                  : captainBallots > 0
+                    ? "Score sur 100 : seuls les bulletins des capitaines ont été exprimés, ils comptent pour 100 %."
+                    : "Score sur 100 : aucun bulletin exprimé."}
+            </p>
+          </>
         )}
-      </Section>
-    </>
+      </div>
+    </div>
   );
 }
 

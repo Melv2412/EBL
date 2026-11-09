@@ -20,16 +20,17 @@ const SPOTS: Record<Side, { x: number; y: number }[]> = {
 type Elected = { ext: ScoredCandidate[]; int: ScoredCandidate[] };
 
 /** L'All-EBL Team d'une saison, sur le demi-terrain aux couleurs de l'EBL. */
-export function AllEblCourt({ team, players, promos }: { team: Elected; players: Player[]; promos: Promo[] }) {
+export function AllEblCourt({ team, players, promos, showcase = false }: { team: Elected; players: Player[]; promos: Promo[]; showcase?: boolean }) {
   const playerBy = new Map(players.map((p) => [p.id, p]));
   const promoBy = new Map(promos.map((p) => [p.number, p]));
 
   return (
     <div
-      className="relative mx-auto aspect-[15/14] w-full max-w-xl overflow-hidden rounded-2xl border-2 border-gold shadow-lg"
-      style={{ background: "linear-gradient(180deg, #c98f55, #b07440)" }}
+      data-all-ebl-court={showcase ? "showcase" : undefined}
+      className={showcase ? "relative isolate w-full overflow-hidden" : "relative mx-auto aspect-[15/14] w-full max-w-xl overflow-hidden rounded-2xl border-2 border-gold shadow-lg"}
+      style={showcase ? undefined : { background: "linear-gradient(180deg, #c98f55, #b07440)" }}
     >
-      <svg viewBox="0 0 150 140" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+      <svg viewBox="0 0 150 140" preserveAspectRatio={showcase ? "none" : undefined} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
         <g fill="none" stroke="rgb(255 255 255 / 0.8)" strokeWidth="0.9">
           <rect x="2" y="2" width="146" height="136" />
           <path d="M51 138V80h48v58" fill="#15191d" fillOpacity="0.45" />
@@ -50,10 +51,11 @@ export function AllEblCourt({ team, players, promos }: { team: Elected; players:
           return (
             <div
               key={`${side}-${p.id}`}
-              className="absolute flex w-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center sm:w-28"
+              data-court-player={showcase ? "" : undefined}
+              className={showcase ? "absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center" : "absolute flex w-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center sm:w-28"}
               style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
             >
-              <span className="relative rounded-full p-0.5 shadow-lg" style={{ background: promo.color_secondary }}>
+              <span data-player-portrait={showcase ? "" : undefined} className="relative rounded-full p-0.5 shadow-lg" style={{ background: promo.color_secondary }}>
                 {p.photo_url ? (
                   <Image
                     src={p.photo_url}
@@ -75,8 +77,9 @@ export function AllEblCourt({ team, players, promos }: { team: Elected; players:
                 </span>
               </span>
               <span
-                className="mt-1 max-w-full truncate rounded px-1.5 py-0.5 font-display text-[0.7rem] font-bold uppercase leading-tight text-white shadow sm:text-xs"
-                style={{ background: promo.color_primary }}
+                data-player-name={showcase ? "" : undefined}
+                className={showcase ? "mt-1 max-w-full rounded px-1.5 py-1 font-display font-bold uppercase leading-tight text-white shadow" : "mt-1 max-w-full truncate rounded px-1.5 py-0.5 font-display text-[0.7rem] font-bold uppercase leading-tight text-white shadow sm:text-xs"}
+                style={{ background: showcase ? "#16181b" : promo.color_primary }}
                 title={`${p.full_name} · ${promoName(promo)}`}
               >
                 {p.full_name}

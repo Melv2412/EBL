@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Oswald } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { AdminBar } from "@/components/admin-bar";
 import { allEblNav } from "@/lib/allebl";
 import { RevealObserver } from "@/components/motion";
 import "./globals.css";
@@ -47,7 +46,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         >
           Aller au contenu
         </a>
-        <AdminBar />
         <SiteHeader allEbl={allEbl} />
         <main id="contenu" className="min-h-[70vh]">
           {children}

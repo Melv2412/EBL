@@ -1,0 +1,223 @@
+.page {
+  --all-gold: #916016;
+  --all-bg: #f3f4f4;
+  --all-panel: #ffffff;
+  --all-text: #242629;
+  --all-muted: #61656a;
+  --all-line: #d7dadc;
+  background: var(--all-bg);
+  color: var(--all-text);
+  padding-bottom: 3rem;
+}
+
+:global([data-theme="dark"]) .page {
+  --all-gold: #e7b66b;
+  --all-bg: #101214;
+  --all-panel: #191c1f;
+  --all-text: #f4f4f2;
+  --all-muted: #adb1b5;
+  --all-line: #34383c;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #101214;
+  color: #fff;
+}
+
+.hero::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  content: "";
+  background: url("/photos/all-ebl-arena.jpg") left 35% / auto 175% no-repeat;
+  filter: grayscale(1);
+  transform: scaleX(-1);
+}
+
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, #101214 5%, rgb(16 18 20 / 85%) 40%, rgb(16 18 20 / 10%) 100%);
+}
+
+.heroInner {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: 2rem 1.5rem;
+}
+
+.season {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid #9a773c;
+  border-radius: 4px;
+  padding: 0.35rem 0.7rem;
+  color: #f0cb8e;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.title {
+  margin-top: 0.75rem;
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 4.5rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.intro {
+  max-width: 31rem;
+  margin-top: 0.8rem;
+  color: #d5d8db;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.heroRule {
+  display: block;
+  width: 3rem;
+  height: 3px;
+  margin-top: 1.25rem;
+  background: #e7b66b;
+}
+
+.content {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: 2rem 1.5rem 0;
+}
+
+.notice {
+  margin-bottom: 1.5rem;
+  border-left: 3px solid var(--all-gold);
+  padding: 0.6rem 1rem;
+  color: var(--all-gold);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.seasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.seasons a {
+  border: 1px solid var(--all-line);
+  border-radius: 4px;
+  padding: 0.5rem 0.9rem;
+  color: var(--all-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.seasons a[aria-current="page"] {
+  border-color: var(--all-gold);
+  color: var(--all-gold);
+}
+
+.seasons a:hover { background: var(--all-panel); }
+
+.page :global([data-all-ebl-court="showcase"]) {
+  min-height: 350px;
+  aspect-ratio: 19 / 10;
+  border: 1px solid #bc9159;
+  border-radius: 8px;
+  background-color: #b9824b;
+  background-image:
+    repeating-linear-gradient(2deg, transparent 0 3px, rgb(255 226 179 / 8%) 3px 4px, transparent 4px 9px),
+    repeating-linear-gradient(90deg, transparent 0 73px, rgb(70 35 12 / 7%) 73px 74px, transparent 74px 151px),
+    repeating-linear-gradient(0deg, #c18b51 0 26px, #b47d48 26px 27px, #c59056 27px 54px, #b68049 54px 55px);
+  box-shadow: inset 0 0 60px rgb(75 38 12 / 15%);
+}
+
+.page :global([data-court-player]) {
+  width: 23%;
+  max-width: 8rem;
+}
+
+.page :global([data-player-name]) {
+  font-size: 0.75rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.page :global([data-player-portrait]) > :first-child {
+  width: 64px;
+  height: 64px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+  border-block: 1px solid var(--all-line);
+  padding-block: 1.35rem;
+}
+
+.summary > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.3rem;
+  min-width: 0;
+  border-right: 1px solid var(--all-line);
+}
+
+.summary > div:last-child { border-right: 0; }
+.summary dt { color: var(--all-muted); font-size: 0.75rem; }
+.summary dd { font-family: var(--font-oswald), sans-serif; font-size: 1.65rem; font-weight: 600; }
+.summary dd span { color: var(--all-muted); font-size: 1rem; font-weight: 400; }
+.formula { margin-top: 0.75rem; color: var(--all-muted); font-size: 0.72rem; line-height: 1.8; }
+
+.status {
+  max-width: 48rem;
+  padding: 1rem 0 2rem;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--all-gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.liveDot { width: 7px; height: 7px; border-radius: 50%; background: #38a59d; }
+.status h2 { max-width: 32rem; font-family: var(--font-oswald), sans-serif; font-size: 2rem; font-weight: 500; line-height: 1.35; text-wrap: balance; }
+.status > p:not(.eyebrow) { margin-top: 0.9rem; color: var(--all-muted); font-size: 0.9rem; line-height: 1.8; }
+.voteButton { display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 44px; margin-top: 1.5rem; border-radius: 4px; background: #e7b66b; padding: 0.8rem 1.25rem; color: #191714; font-size: 0.875rem; font-weight: 600; }
+.voteButton:hover { background: #f0c98e; }
+.emptyResults { display: flex; min-height: 350px; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; border: 1px dashed var(--all-line); border-radius: 8px; padding: 2rem; text-align: center; }
+.emptyResults h3 { font-family: var(--font-oswald), sans-serif; font-size: 1.4rem; }
+.emptyResults p { color: var(--all-muted); font-size: 0.85rem; }
+.page a:focus-visible { outline: 2px solid var(--all-gold); outline-offset: 4px; }
+
+@media (width < 40rem) {
+  .heroInner { padding: 2rem 1rem; }
+  .title { font-size: 2.75rem; }
+  .intro { font-size: 0.875rem; }
+  .hero::after { background: rgb(16 18 20 / 75%); }
+  .content { padding: 1.5rem 1rem 0; }
+  .page :global([data-all-ebl-court="showcase"]) { aspect-ratio: 15 / 16; min-height: 400px; }
+  .page :global([data-player-portrait]) > :first-child { width: 48px; height: 48px; }
+  .page :global([data-player-name]) { font-size: 0.65rem; }
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; }
+  .summary > div:nth-child(2) { border-right: 0; }
+  .summary dt { font-size: 0.7rem; }
+  .status h2 { font-size: 1.75rem; }
+}
