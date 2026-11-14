@@ -50,7 +50,14 @@ export default async function Home() {
     <>
       {spot?.kind === "final" && <FinalHero league={league} edition={spot.edition} series={spot.series} />}
       {spot?.kind === "champion" && <ChampionHero edition={spot.edition} />}
-      {!spot && <HomeSlideshow key={JSON.stringify(settings.slides ?? settings.slide_order)} slides={settings.slides ?? orderedHomeSlides(settings.slide_order)} />}
+      {!spot && (
+        <HomeSlideshow
+          key={JSON.stringify(settings.slides ?? settings.slide_order)}
+          slides={settings.slides ?? orderedHomeSlides(settings.slide_order)}
+          primary={voteOpen ? { href: "/vote", label: "Voter pour l'All-Star" } : { href: "/editions", label: "Les éditions" }}
+          secondary={{ href: "/promos", label: "Les promos" }}
+        />
+      )}
 
       {allEbl && <AllEblTeaser year={allEbl.year} team={allEbl.team} players={data.players} />}
 
@@ -110,11 +117,11 @@ function AllEblTeaser({ year, team, players }: { year: number; team: { ext: Scor
   return (
     <section className="mx-auto max-w-6xl px-4 pt-10">
       <Link
-        href={`/all-ebl?saison=${label}`}
+        href={`/all-star?saison=${label}`}
         className="flex flex-col items-start gap-3 rounded-2xl border-2 border-gold bg-gold/10 p-5 transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
       >
         <span>
-          <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">All-EBL Team {label}</span>
+          <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">All-Star EBL Team {label}</span>
           <span className="font-display text-2xl font-bold uppercase">L&apos;équipe type est connue</span>
           <span className="mt-1 block text-sm text-ink-soft">
             {[...team.ext, ...team.int].map((c) => name(c.player_id)).join(" · ")}
@@ -132,9 +139,9 @@ function FinalHero({ league, edition, series }: { league: League; edition: Editi
   return (
     <section className="court-lines relative overflow-hidden bg-night text-white">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-teal">
+        <h1 className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-teal">
           Finale EBL {edition.label}
-        </p>
+        </h1>
         <p className="mt-2 text-center font-display text-lg uppercase text-white/80">
           {edition.final_date ? (
             <>
@@ -162,7 +169,7 @@ function FinalHero({ league, edition, series }: { league: League; edition: Editi
 
         {edition.semis.length > 0 && (
           <div className="mx-auto mt-10 max-w-xl border-t border-white/10 pt-5 text-center text-sm text-white/70">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Le chemin vers la finale</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">Le chemin vers la finale</p>
             <ul className="space-y-1">
               {edition.semis.map((s) => (
                 <li key={s.id}>
@@ -186,7 +193,7 @@ function Finalist({ promo, year, league, className = "" }: { promo: Promo; year:
         size={160}
         className="h-24 w-24 ring-4 ring-white/10 transition-transform group-hover:scale-105 sm:h-40 sm:w-40"
       />
-      <p className="mt-4 font-display text-lg font-bold uppercase leading-tight [overflow-wrap:anywhere] sm:text-3xl">{promoName(promo)}</p>
+      <p className="ebl-name mt-4 font-display text-[clamp(0.85rem,4.2vw,1.125rem)] font-bold uppercase leading-tight sm:text-3xl">{promoName(promo)}</p>
       <p className="mt-1 font-display text-sm tracking-widest text-white/60">
         {promoCode(promo)} · {level}
       </p>
@@ -281,7 +288,7 @@ function Ladder({ league }: { league: League }) {
               <Tie level={level} size={26} />
               {level === "M2" ? (
                 <>
-                  M2<span className="text-xl text-ink-soft">&nbsp;et +</span>
+                  M2<span className="text-lg font-semibold text-ink-soft">&nbsp;et&nbsp;+</span>
                 </>
               ) : (
                 level
@@ -295,8 +302,8 @@ function Ladder({ league }: { league: League }) {
                   <li key={edition.start_year} className="ebl-drop">
                     <Link href={`/promos/${promoSlug(promo)}`} className="flex items-center gap-2 hover:text-teal">
                       <PromoBadge promo={promo} size={36} className="rounded-lg" />
-                      <span className="text-sm leading-tight">
-                        <span className="block font-semibold">{promoName(promo)}</span>
+                      <span className="min-w-0 text-[0.8rem] leading-tight sm:text-sm">
+                        <span className="ebl-name block font-semibold">{promoName(promo)}</span>
                         <span className="text-xs text-ink-soft">
                           {edition.label}
                           {alumni && " · anciens"}

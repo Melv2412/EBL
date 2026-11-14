@@ -13,7 +13,7 @@ import { SeasonSelect } from "./season-select";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "All-EBL Team", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "All-Star EBL Team", robots: { index: false, follow: false } };
 
 type Props = { searchParams: Promise<{ saison?: string }> };
 
@@ -28,7 +28,7 @@ export default async function AllEblPage({ searchParams }: Props) {
     if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
     return (
       <>
-        <PageTitle kicker="Les équipes élues" title="All-EBL Team" />
+        <PageTitle kicker="Les équipes élues" title="All-Star EBL Team" />
         <Section title="Aucune équipe publiée pour le moment">
           <p className="text-ink-soft">Les équipes seront disponibles après la clôture des votes et leur publication.</p>
           <Link href="/vote" className="mt-4 inline-block font-semibold text-teal">Voir les votes</Link>
@@ -78,7 +78,7 @@ export default async function AllEblPage({ searchParams }: Props) {
               <SeasonSelect seasons={seasons.map((season) => seasonLabel(season.start_year))} selected={label} />
             ) : <span>Saison {label}</span>}
           </div>
-          <h1 className={styles.title}>All-EBL Team</h1>
+          <h1 className={styles.title}>All-Star EBL Team</h1>
           <p className={styles.intro}>
             3 extérieurs. 2 intérieurs. L&apos;équipe de la saison,
             élue par le public et les capitaines de chaque promo.
@@ -156,7 +156,7 @@ export default async function AllEblPage({ searchParams }: Props) {
 function NotConfigured({ year }: { year: number }) {
   return (
     <>
-      <PageTitle kicker="Aperçu admin" title="All-EBL Team" />
+      <PageTitle kicker="Aperçu admin" title="All-Star EBL Team" />
       <Section title="Pas encore configuré">
         <p className="max-w-xl text-ink-soft">
           Cette page n&apos;est visible que par les admins. Pour l&apos;activer, règle les dates d&apos;ouverture et de
@@ -166,7 +166,7 @@ function NotConfigured({ year }: { year: number }) {
           href={`/admin/editions/${year}/all-ebl`}
           className="mt-4 inline-block rounded-full bg-teal px-5 py-2 font-semibold text-white"
         >
-          Configurer l&apos;All-EBL Team →
+          Configurer l&apos;All-Star EBL Team →
         </Link>
       </Section>
     </>

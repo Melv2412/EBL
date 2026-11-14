@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { seasonLabel } from "./league";
 import type { Player, Promo } from "./types";
 
-/** Saison de lancement de l'All-EBL Team. */
+/** Saison de lancement de l'All-Star EBL Team. */
 export const ALLEBL_FIRST_YEAR = 2025;
 export const EXT_COUNT = 3;
 export const INT_COUNT = 2;
@@ -157,10 +157,10 @@ export async function allEblNav() {
   const published = settings.filter((s) => s.allebl_published);
   if (published.some((s) => votePhase(s) === "ouvert")) return { href: "/vote", live: true };
   const done = published.find((s) => votePhase(s) === "clos");
-  return done ? { href: `/all-ebl?saison=${seasonLabel(done.start_year)}`, live: false } : null;
+  return done ? { href: `/all-star?saison=${seasonLabel(done.start_year)}`, live: false } : null;
 }
 
-/** La dernière All-EBL Team publiée (vote clos), pour l'accueil. */
+/** La dernière All-Star EBL Team publiée (vote clos), pour l'accueil. */
 export async function latestPublishedTeam(data: { players: Player[] }) {
   const { settings } = await getAllEbl();
   const s = settings.find((x) => x.allebl_published && votePhase(x) === "clos");

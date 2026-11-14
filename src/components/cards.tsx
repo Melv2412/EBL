@@ -28,9 +28,9 @@ export function PromoCard({ promo, league }: { promo: Promo; league: League }) {
       <div className="min-w-0">
         <p className="font-display text-sm font-semibold tracking-widest text-white/70">
           {promoCode(promo)}
-          {level && <span className="ml-2 text-white/50">· {level === "Anciens" ? "Anciens" : `en ${level}`}</span>}
+          {level && <span className="ml-2 text-white/80">· {level === "Anciens" ? "Anciens" : `en ${level}`}</span>}
         </p>
-        <p className="truncate font-display text-2xl font-bold uppercase">{promo.name ?? "Nom à venir"}</p>
+        <p className="ebl-name line-clamp-2 font-display text-xl font-bold uppercase leading-tight sm:text-2xl">{promo.name ?? "Nom à venir"}</p>
         {best && (
           <p className="mt-1 text-xs text-white/80">
             {best.placement === "champion" ? "🏆 " : ""}
@@ -76,9 +76,14 @@ export function EditionCard({ edition }: { edition: EditionView }) {
         {edition.status === "en_cours" && (
           <span className="rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-white">En cours</span>
         )}
+        {edition.cancelled && (
+          <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">Annulée</span>
+        )}
       </div>
 
-      {edition.champion ? (
+      {edition.cancelled ? (
+        <p className="mt-4 text-sm text-ink-soft">Saison annulée : aucun titre décerné.</p>
+      ) : edition.champion ? (
         <div className="mt-4 flex items-center gap-3">
           <PromoBadge promo={edition.champion} size={52} />
           <div>

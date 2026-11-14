@@ -8,7 +8,7 @@
   --ink: #1d2328;
   --ink-soft: #55616b;
   --line: #d5dee5;
-  --teal: #1c8fb3;
+  --teal: #177fa0; /* assombri pour un contraste AA avec le blanc */
   --teal-strong: #136f8d;
   --teal-soft: #d7eef5;
   --night: #15191d;
@@ -78,7 +78,7 @@ body {
 /* ---------- Animations ---------- */
 
 @keyframes ebl-fade-up {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes ebl-in-left {
@@ -123,10 +123,13 @@ body {
   50% { transform: scaleX(0.55); opacity: 0.12; }
 }
 
+/* Noms d'équipes et de joueurs : retour à la ligne entre les mots, jamais au milieu d'un mot. */
+.ebl-name { overflow-wrap: normal; word-break: normal; hyphens: none; text-wrap: balance; }
+
 /* Apparition au défilement : masqué seulement si le JS tourne (voir RevealObserver). */
 .js [data-reveal] { opacity: 0; }
 .js [data-reveal].is-visible {
-  animation: ebl-fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: ebl-fade-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
 }
 .is-visible .ebl-drop {
@@ -174,16 +177,19 @@ body {
 }
 
 /* Transition entre les pages (voir app/template.tsx). */
+/* Fondu léger, sans flou ni déplacement : rien n'est jamais illisible pendant la transition. */
 @keyframes ebl-page-in {
-  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0.4; }
+  to { opacity: 1; }
 }
-.ebl-page { animation: ebl-page-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.ebl-page { animation: ebl-page-in 0.2s ease-out; }
 @media (prefers-reduced-motion: reduce) {
   .ebl-page { animation: none; }
 }
 
 /* Admin sur mobile : la barre d'onglets fixe en bas ne doit pas cacher la fin de la page. */
 @media (width < 48rem) {
-  body:has([data-admin-tabbar]) { padding-bottom: 4.5rem; }
+  body:has([data-admin-tabbar]) { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
 }
+/* L'espace admin n'affiche pas le pied de page du site public. */
+body:has([data-admin-space]) [data-site-footer] { display: none; }

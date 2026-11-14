@@ -570,7 +570,7 @@ export async function deleteAward(fd: FormData) {
   publish();
 }
 
-// ---------- All-EBL Team ----------
+// ---------- All-Star EBL Team ----------
 
 /** Le champ datetime-local est saisi à l'heure d'Abidjan, qui est UTC toute l'année. */
 function utc(local: string | null) {

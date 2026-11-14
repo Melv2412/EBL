@@ -104,6 +104,8 @@ export type EditionView = Edition & {
   champion: Promo | null;
   finalist: Promo | null;
   awards: AwardView[];
+  /** Saison annulée : aucun titre décerné. */
+  cancelled: boolean;
   /** Le résultat est-il au moins partiellement connu ? */
   known: boolean;
 };
@@ -135,7 +137,9 @@ export function buildLeague(data: LeagueData) {
       const poule = ss.filter((s) => s.round === "poule");
       const registered = data.editionTeams.filter((t) => t.edition_year === e.start_year).map((t) => t.promo);
       const teamNumbers = new Set([...registered, ...poule.flatMap((s) => [s.promo_a, s.promo_b])]);
-      const final = ss.find((s) => s.round === "finale") ?? null;
+      // Saison annulée : on garde les matchs joués, mais ni finale, ni champion, ni demi-finalistes.
+      const cancelled = e.status === "annulee";
+      const final = cancelled ? null : (ss.find((s) => s.round === "finale") ?? null);
       const champion = final?.winner ? promo(final.winner) : null;
       const finalist =
         final?.winner ? promo(final.winner === final.promo_a ? final.promo_b : final.promo_a) : null;
@@ -150,7 +154,7 @@ export function buildLeague(data: LeagueData) {
         ...semis.filter((s) => s.winner !== null).map((s) => (s.winner === s.promo_a ? s.promo_b : s.promo_a)),
         ...data.semifinalists.filter((x) => x.edition_year === e.start_year).map((x) => x.promo),
       ]);
-      const semiLosers = [...loserNumbers].filter((n) => promoBy.has(n)).map(promo);
+      const semiLosers = cancelled ? [] : [...loserNumbers].filter((n) => promoBy.has(n)).map(promo);
       return {
         ...e,
         label: seasonLabel(e.start_year),
@@ -162,7 +166,8 @@ export function buildLeague(data: LeagueData) {
         champion,
         finalist,
         awards,
-        known: ss.length > 0 || awards.length > 0 || teamNumbers.size > 0 || semiLosers.length > 0,
+        cancelled,
+        known: cancelled || ss.length > 0 || awards.length > 0 || teamNumbers.size > 0 || semiLosers.length > 0,
       };
     })
     .sort((a, b) => b.start_year - a.start_year);

@@ -53,10 +53,31 @@ const FIELD: Record<string, Record<string, string>> = {
     summary: "résumé",
   },
   awards: { type: "distinction", player_id: "joueur", points: "points", games: "matchs" },
+  homepage_settings: { mode: "mode d'affichage", slide_order: "ordre des photos", slides: "photos du diaporama" },
 };
 
+/** Catégories de l'historique : chacune regroupe les tables qu'elle concerne. */
+export const CATEGORIES = {
+  editions: { label: "Éditions", tables: ["editions", "edition_teams", "semifinalists"] },
+  matchs: { label: "Matchs", tables: ["series", "games"] },
+  promos: { label: "Promos", tables: ["promos"] },
+  joueurs: { label: "Joueurs", tables: ["players"] },
+  distinctions: { label: "Distinctions", tables: ["awards"] },
+  allstar: { label: "All-Star", tables: ["allebl_candidates", "allebl_captain_links"] },
+  accueil: { label: "Accueil", tables: ["homepage_settings"] },
+} as const;
+export type Category = keyof typeof CATEGORIES;
+
+export function categoryOf(table: string): Category | null {
+  for (const [key, c] of Object.entries(CATEGORIES)) {
+    if ((c.tables as readonly string[]).includes(table)) return key as Category;
+  }
+  return null;
+}
+
 const ROUND: Record<string, string> = { poule: "Poule", demi: "Demi-finale", finale: "Finale", troisieme: "3e place" };
-const STATUS: Record<string, string> = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée" };
+const STATUS: Record<string, string> = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée", annulee: "Annulée" };
+const HOME_MODE: Record<string, string> = { auto: "automatique", final: "finale", champion: "champion", slideshow: "diaporama" };
 const AWARD: Record<string, string> = Object.fromEntries(Object.entries(AWARDS).map(([k, v]) => [k, v.label]));
 
 /** Rend les fiches du journal lisibles : noms des promos, joueurs, matchs. */
@@ -80,6 +101,8 @@ export function describer(league: League, data: LeagueData) {
     if (field === "status") return STATUS[String(v)] ?? String(v);
     if (field === "type" && table === "awards") return AWARD[String(v)] ?? String(v);
     if (field.endsWith("_url")) return "image";
+    if (field === "mode" && table === "homepage_settings") return HOME_MODE[String(v)] ?? String(v);
+    if (Array.isArray(v)) return `${v.length} élément${v.length > 1 ? "s" : ""}`;
     const s = String(v);
     return s.length > 60 ? `${s.slice(0, 57)}…` : s;
   }
@@ -106,6 +129,12 @@ export function describer(league: League, data: LeagueData) {
         return `l'inscription de ${promo(r.promo)} à l'édition ${seasonLabel(Number(r.edition_year))}`;
       case "semifinalists":
         return `${promo(r.promo)} demi-finaliste ${seasonLabel(Number(r.edition_year))}`;
+      case "allebl_candidates":
+        return `la candidature All-Star de ${player(r.player_id)} (${r.side === "int" ? "intérieur" : "extérieur"}, ${seasonLabel(Number(r.edition_year))})`;
+      case "allebl_captain_links":
+        return `le lien de vote capitaine de ${promo(r.promo)} (${seasonLabel(Number(r.edition_year))})`;
+      case "homepage_settings":
+        return "les réglages de l'accueil";
       default:
         return e.table_name;
     }

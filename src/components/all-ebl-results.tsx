@@ -22,7 +22,7 @@ export function AllEblResults({ court, rows, provisional }: { court: ReactNode; 
   const [side, setSide] = useState<Side>("ext");
 
   return (
-    <section className={styles.results} aria-label="Résultats All-EBL">
+    <section className={styles.results} aria-label="Résultats All-Star">
       <div className={styles.toolbar}>
         <h2 className={styles.heading}>
           <span aria-hidden><AwardIcon type="mvp_finale" size={23} /></span>
@@ -71,7 +71,7 @@ function RankingTable({ rows, compact = false }: { rows: AllEblResultRow[]; comp
   return (
     <div className={`${styles.tableScroll} ${compact ? styles.compact : ""}`} tabIndex={0} role="region" aria-label={compact ? "Classement par poste" : "Classement de tous les candidats"}>
       <table className={styles.table}>
-        <caption className="sr-only">Classement All-EBL, par poste et score décroissant</caption>
+        <caption className="sr-only">Classement All-Star, par poste et score décroissant</caption>
         <thead>
           <tr>
             <th scope="col"><span aria-hidden>#</span><span className="sr-only">Rang par poste</span></th>

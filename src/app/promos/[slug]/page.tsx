@@ -140,6 +140,10 @@ export default async function PromoPage({ params }: Props) {
                 <div className="mt-auto pt-3 text-sm">
                   {!entry ? (
                     <span className="text-ink-soft">À venir</span>
+                  ) : entry.edition.cancelled ? (
+                    <Link href={`/editions/${entry.edition.label}`} className="text-ink-soft hover:text-teal">
+                      Saison annulée
+                    </Link>
                   ) : entry.placement ? (
                     <Link href={`/editions/${entry.edition.label}`}>
                       <PlacementPill placement={entry.placement} />

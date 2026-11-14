@@ -10,14 +10,14 @@ export function SeasonSelect({ seasons, selected }: { seasons: string[]; selecte
 
   return (
     <select
-      aria-label="Saison All-EBL"
+      aria-label="Saison All-Star"
       aria-busy={pending}
       className={styles.seasonSelect}
       value={selected}
       disabled={pending}
       onChange={(event) => {
         const season = event.target.value;
-        startTransition(() => router.push(`/all-ebl?saison=${encodeURIComponent(season)}`, { scroll: false }));
+        startTransition(() => router.push(`/all-star?saison=${encodeURIComponent(season)}`, { scroll: false }));
       }}
     >
       {seasons.map((season) => <option key={season} value={season}>Saison {season}</option>)}

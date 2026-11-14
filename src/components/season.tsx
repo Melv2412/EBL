@@ -111,13 +111,13 @@ export function ResultsList({ edition, league, limit }: { edition: EditionView; 
               {s.match_date && s.round !== "poule" && <span className="block">{ROUND_LABEL[s.round]}</span>}
             </span>
             <span className={`flex min-w-0 flex-1 items-center justify-end gap-2 text-right ${s.winner === a.number ? "font-semibold" : "text-ink-soft"}`}>
-              <span className="truncate">{promoName(a)}</span>
+              <span className="ebl-name line-clamp-2">{promoName(a)}</span>
               <PromoBadge promo={a} size={26} className="rounded-md" />
             </span>
             <span className="w-16 shrink-0 text-center font-display text-base font-bold tabular-nums">{score ?? "–"}</span>
             <span className={`flex min-w-0 flex-1 items-center gap-2 ${s.winner === b.number ? "font-semibold" : "text-ink-soft"}`}>
               <PromoBadge promo={b} size={26} className="rounded-md" />
-              <span className="truncate">{promoName(b)}</span>
+              <span className="ebl-name line-clamp-2">{promoName(b)}</span>
             </span>
           </li>
         );
@@ -130,6 +130,9 @@ export function ResultsList({ edition, league, limit }: { edition: EditionView; 
 export function SeriesCard({ series, league, year, big }: { series: SeriesView; league: League; year: number; big?: boolean }) {
   const decided = series.winner !== null;
   const games = series.games.filter((g) => g.score_a !== null && g.score_b !== null);
+  // Le vainqueur est toujours affiché à gauche.
+  const flip = decided && series.winner === series.promo_b;
+  const [left, right] = flip ? [series.promo_b, series.promo_a] : [series.promo_a, series.promo_b];
   const side = (n: number) => {
     const p = league.promo(n)!;
     const won = series.winner === p.number;
@@ -139,7 +142,7 @@ export function SeriesCard({ series, league, year, big }: { series: SeriesView; 
         className={`flex flex-col items-center gap-2 text-center ${decided && !won ? "opacity-55" : ""}`}
       >
         <PromoBadge promo={p} size={big ? 112 : 64} />
-        <span className={`font-display font-bold uppercase leading-tight [overflow-wrap:anywhere] ${big ? "text-xl sm:text-2xl" : "text-lg"}`}>
+        <span className={`ebl-name font-display font-bold uppercase leading-tight ${big ? "text-[clamp(0.85rem,4.2vw,1.25rem)] sm:text-2xl" : "text-[clamp(0.8rem,3.8vw,1.125rem)] sm:text-lg"}`}>
           {promoName(p)}
         </span>
         <span className="text-xs text-ink-soft">
@@ -152,20 +155,20 @@ export function SeriesCard({ series, league, year, big }: { series: SeriesView; 
   return (
     <div className="rounded-2xl border border-line bg-surface p-4 sm:p-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-        {side(series.promo_a)}
+        {side(left)}
         <div className="text-center">
-          <p className={`font-display font-bold ${big ? "text-4xl" : "text-2xl"}`}>{seriesScore(series) ?? "VS"}</p>
+          <p className={`font-display font-bold ${big ? "text-4xl" : "text-2xl"}`}>{seriesScore(series, left) ?? "VS"}</p>
           <p className="text-xs text-ink-soft">
             {series.best_of > 1 ? `au meilleur des ${series.best_of}` : "match sec"}
           </p>
           {series.best_of > 1 && games.length > 0 && (
             <p className="mt-1 text-xs tabular-nums text-ink-soft">
-              {games.map((g) => `${g.score_a}-${g.score_b}`).join(" · ")}
+              {games.map((g) => (flip ? `${g.score_b}-${g.score_a}` : `${g.score_a}-${g.score_b}`)).join(" · ")}
             </p>
           )}
           {!decided && series.match_date && <p className="mt-1 text-xs font-semibold text-teal">{formatDay(series.match_date)}</p>}
         </div>
-        {side(series.promo_b)}
+        {side(right)}
       </div>
     </div>
   );

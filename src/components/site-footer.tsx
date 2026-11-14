@@ -4,7 +4,7 @@ import { WHATSAPP_URL } from "@/lib/league";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 bg-night text-white/70">
+    <footer data-site-footer className="mt-20 bg-night text-white/70">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1fr_auto]">
         <div className="space-y-3">
           <div className="inline-block rounded bg-white px-3 py-2">

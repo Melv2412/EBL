@@ -10,7 +10,7 @@ import { PageTitle, Section } from "@/components/ui";
 import { hasVoted, publicVote } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Vote All-EBL Team", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Vote All-Star EBL Team", robots: { index: false, follow: false } };
 
 export default async function VotePage() {
   const [{ settings, candidates, ready }, admin, data] = await Promise.all([getAllEbl(), currentAdmin(), getLeagueData()]);
@@ -27,10 +27,10 @@ export default async function VotePage() {
     if (admin && settings[0]) return <NotConfigured year={settings[0].start_year} />;
     return (
       <>
-        <PageTitle kicker="All-EBL Team" title="Vote All-EBL" />
+        <PageTitle kicker="All-Star EBL Team" title="Vote All-Star" />
         <Section title="Aucun vote ouvert">
           <p className="text-ink-soft">Aucun vote public n&apos;est ouvert ou annoncé pour le moment.</p>
-          <Link href="/all-ebl" className="mt-4 inline-block font-semibold text-teal">Voir les équipes élues</Link>
+          <Link href="/all-star" className="mt-4 inline-block font-semibold text-teal">Voir les équipes élues</Link>
         </Section>
       </>
     );
@@ -44,7 +44,7 @@ export default async function VotePage() {
   return (
     <>
       <PageTitle
-        kicker={`All-EBL Team ${label}`}
+        kicker={`All-Star EBL Team ${label}`}
         title="Élis le 5 de la saison"
         intro="3 extérieurs et 2 intérieurs. Ton vote compte pour moitié, celui des capitaines de chaque promo pour l'autre moitié."
       />
@@ -61,8 +61,8 @@ export default async function VotePage() {
         {phase === "clos" && (
           <p className="text-ink-soft">
             Le vote est terminé.{" "}
-            <Link href={`/all-ebl?saison=${label}`} className="font-semibold text-teal">
-              Voir l&apos;All-EBL Team {label} →
+            <Link href={`/all-star?saison=${label}`} className="font-semibold text-teal">
+              Voir l&apos;All-Star EBL Team {label} →
             </Link>
           </p>
         )}
@@ -76,7 +76,7 @@ export default async function VotePage() {
             {s.allebl_closes_at && (
               <p className="-mt-3 mb-6 text-sm text-ink-soft">Fin du vote : {formatWhen(s.allebl_closes_at)}.</p>
             )}
-            <Ballot action={publicVote} hidden={{ edition_year: s.start_year }} candidates={list} />
+            <Ballot action={publicVote} hidden={{ edition_year: s.start_year }} candidates={list} season={label} />
           </>
         )}
       </Section>
@@ -87,7 +87,7 @@ export default async function VotePage() {
 function NotConfigured({ year }: { year: number }) {
   return (
     <>
-      <PageTitle kicker="Aperçu admin" title="All-EBL Team" />
+      <PageTitle kicker="Aperçu admin" title="All-Star EBL Team" />
       <Section title="Pas encore configuré">
         <p className="max-w-xl text-ink-soft">
           Cette page n&apos;est visible que par les admins. Pour l&apos;activer, règle les dates d&apos;ouverture et de
@@ -97,7 +97,7 @@ function NotConfigured({ year }: { year: number }) {
           href={`/admin/editions/${year}/all-ebl`}
           className="mt-4 inline-block rounded-full bg-teal px-5 py-2 font-semibold text-white"
         >
-          Configurer l&apos;All-EBL Team →
+          Configurer l&apos;All-Star EBL Team →
         </Link>
       </Section>
     </>

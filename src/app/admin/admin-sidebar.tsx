@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "./actions";
@@ -50,6 +52,10 @@ const LOGOUT = svg("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H
  */
 export function AdminSidebar({ username }: { username: string }) {
   const pathname = usePathname();
+  // La barre du bas est rendue directement dans <body> : l'animation des pages (template.tsx)
+  // ne doit pas l'entraîner, sinon elle quitte le bas de l'écran sur iPhone.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const isActive = (item: Item) =>
     item.exact ? pathname === item.href || (!!item.match && pathname.startsWith(item.match)) : pathname.startsWith(item.href);
 
@@ -93,13 +99,14 @@ export function AdminSidebar({ username }: { username: string }) {
               <span className="shrink-0">{LOGOUT}</span>
               <Fade>
                 Déconnexion
-                <span className="block truncate text-xs text-white/40">{username}</span>
+                <span className="block truncate text-xs text-white/65">{username}</span>
               </Fade>
             </button>
           </form>
         </nav>
       </aside>
 
+      {mounted && createPortal(
       <nav
         aria-label="Menu admin"
         data-admin-tabbar
@@ -131,7 +138,9 @@ export function AdminSidebar({ username }: { username: string }) {
             Sortir
           </button>
         </form>
-      </nav>
+      </nav>,
+      document.body,
+      )}
     </>
   );
 }

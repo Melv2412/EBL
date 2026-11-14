@@ -1,4 +1,4 @@
-export type EditionStatus = "a_completer" | "en_cours" | "terminee";
+export type EditionStatus = "a_completer" | "en_cours" | "terminee" | "annulee";
 export type SeriesRound = "poule" | "demi" | "finale" | "troisieme";
 export type AwardType =
   | "mvp"

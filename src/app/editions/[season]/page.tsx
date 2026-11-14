@@ -43,19 +43,28 @@ export default async function EditionPage({ params }: Props) {
   return (
     <>
       <PageTitle
-        kicker={e.status === "en_cours" ? "Édition en cours" : "Édition"}
+        kicker={e.cancelled ? "Édition annulée" : e.status === "en_cours" ? "Édition en cours" : "Édition"}
         title={`EBL ${e.label}`}
         intro={e.summary ?? undefined}
       >
         {allEbl && (
           <Link
-            href={`/all-ebl?saison=${e.label}`}
+            href={`/all-star?saison=${e.label}`}
             className="mt-6 inline-block rounded-full bg-gold px-5 py-2 text-sm font-semibold text-night transition hover:-translate-y-0.5"
           >
-            ⭐ All-EBL Team {e.label} →
+            ⭐ All-Star EBL Team {e.label} →
           </Link>
         )}
       </PageTitle>
+
+      {e.cancelled && (
+        <Section title="Saison annulée">
+          <p className="rounded-2xl border border-red-600/40 bg-red-600/5 p-4 text-ink">
+            Cette édition a été annulée : aucun champion, aucune finale.
+            {e.summary ? "" : " Les matchs déjà joués restent affichés ci-dessous."}
+          </p>
+        </Section>
+      )}
 
       {!e.known && (
         <Section title="À raconter">
@@ -122,7 +131,7 @@ export default async function EditionPage({ params }: Props) {
       )}
 
       {allEbl && (
-        <Section title="All-EBL Team" kicker="L'équipe type de la saison" action={{ href: `/all-ebl?saison=${e.label}`, label: "Détail du vote" }}>
+        <Section title="All-Star EBL Team" kicker="L'équipe type de la saison" action={{ href: `/all-star?saison=${e.label}`, label: "Détail du vote" }}>
           <AllEblCourt team={allEbl} players={data.players} promos={data.promos} />
         </Section>
       )}

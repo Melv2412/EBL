@@ -6,7 +6,7 @@ import { ActionForm, inputCls, labelCls } from "../form";
 import { HomeSettingsForm } from "../home-settings-form";
 import { getHomeSettings } from "@/lib/home-settings";
 
-const STATUS_LABEL = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée" } as const;
+const STATUS_LABEL = { a_completer: "À compléter", en_cours: "En cours", terminee: "Terminée", annulee: "Annulée" } as const;
 
 export default async function AdminHome() {
   const league = buildLeague(await getLeagueData());
@@ -79,6 +79,7 @@ export default async function AdminHome() {
                 <option value="en_cours">En cours</option>
                 <option value="terminee">Terminée</option>
                 <option value="a_completer">À compléter</option>
+                <option value="annulee">Annulée</option>
               </select>
             </label>
           </div>

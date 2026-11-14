@@ -52,7 +52,7 @@ export default async function AdminEdition({ params }: Props) {
           href={`/admin/editions/${year}/all-ebl`}
           className="block rounded-2xl border-2 border-gold bg-gold/10 p-4 font-semibold hover:bg-gold/20"
         >
-          ⭐ All-EBL Team {e.label} : candidats, vote, liens des capitaines →
+          ⭐ All-Star EBL Team {e.label} : candidats, vote, liens des capitaines →
         </Link>
       )}
       <div className="flex items-center justify-between">
@@ -287,6 +287,7 @@ export default async function AdminEdition({ params }: Props) {
                 <option value="en_cours">En cours</option>
                 <option value="terminee">Terminée</option>
                 <option value="a_completer">À compléter</option>
+                <option value="annulee">Annulée</option>
               </select>
             </label>
             <label className={labelCls}>
@@ -303,7 +304,7 @@ export default async function AdminEdition({ params }: Props) {
             </label>
           </div>
           <label className={labelCls}>
-            <span>Résumé de l&apos;édition (affiché sur la page de l&apos;édition)</span>
+            <span>Résumé de l&apos;édition (affiché sur sa page ; si elle est annulée, explique pourquoi)</span>
             <textarea name="summary" rows={4} defaultValue={e.summary ?? ""} className={inputCls} />
           </label>
         </ActionForm>

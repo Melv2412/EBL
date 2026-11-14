@@ -19,7 +19,7 @@ const SPOTS: Record<Side, { x: number; y: number }[]> = {
 
 type Elected = { ext: ScoredCandidate[]; int: ScoredCandidate[] };
 
-/** L'All-EBL Team d'une saison, sur le demi-terrain aux couleurs de l'EBL. */
+/** L'All-Star EBL Team d'une saison, sur le demi-terrain aux couleurs de l'EBL. */
 export function AllEblCourt({ team, players, promos, showcase = false }: { team: Elected; players: Player[]; promos: Promo[]; showcase?: boolean }) {
   const playerBy = new Map(players.map((p) => [p.id, p]));
   const promoBy = new Map(promos.map((p) => [p.number, p]));

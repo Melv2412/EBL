@@ -19,11 +19,14 @@ export function Ballot({
   hidden,
   candidates,
   lockedPromo,
+  season,
 }: {
   action: (state: VoteState, fd: FormData) => Promise<VoteState>;
   hidden: Record<string, string | number>;
   candidates: Record<Side, BallotPlayer[]>;
   lockedPromo?: number;
+  /** Saison affichée près du bouton, ex. « 2025-26 ». */
+  season?: string;
 }) {
   const [state, formAction] = useActionState(action, null);
   const [picked, setPicked] = useState<Record<Side, number[]>>({ ext: [], int: [] });
@@ -46,12 +49,26 @@ export function Ballot({
     });
 
   const complete = picked.ext.length === EXT_COUNT && picked.int.length === INT_COUNT;
+  const byId = new Map([...candidates.ext, ...candidates.int].map((p) => [p.id, p]));
+  const chosen = (["ext", "int"] as const).flatMap((side) =>
+    picked[side].flatMap((id) => {
+      const player = byId.get(id);
+      return player ? [{ side, player }] : [];
+    }),
+  );
+  const both = candidates.ext.some((p) => candidates.int.some((q) => q.id === p.id));
 
   return (
-    <form action={formAction} className="space-y-8">
+    <form action={formAction} className="space-y-8 pb-6">
       {Object.entries(hidden).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
+      {both && (
+        <p className="rounded-xl bg-surface-2 p-3 text-sm text-ink-soft">
+          Certains joueurs jouent aussi bien dehors que dedans : ils apparaissent dans les deux listes, mais tu ne
+          peux les choisir qu&apos;une fois.
+        </p>
+      )}
       {(["ext", "int"] as const).map((side) => {
         const other: Side = side === "ext" ? "int" : "ext";
         return (
@@ -98,8 +115,8 @@ export function Ballot({
                         </span>
                       )}
                       <span className="min-w-0">
-                        <span className="block truncate font-semibold leading-tight">{p.full_name}</span>
-                        <span className="block truncate text-xs text-ink-soft">
+                        <span className="ebl-name line-clamp-2 font-semibold leading-tight">{p.full_name}</span>
+                        <span className="ebl-name line-clamp-2 text-xs text-ink-soft">
                           {p.promo.name ?? `IT${p.promo.number}`} · IT{p.promo.number}
                         </span>
                         {locked && <span className="block text-xs text-ink-soft">Ta promo</span>}
@@ -119,10 +136,23 @@ export function Ballot({
         );
       })}
 
-      <div className="sticky bottom-3 flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface/95 p-3 shadow-lg backdrop-blur sm:flex-row sm:justify-between">
-        <p className="text-sm text-ink-soft">
-          {complete ? "Ton équipe est complète." : `Choisis ${EXT_COUNT} extérieurs et ${INT_COUNT} intérieurs.`}
-        </p>
+      <div className="sticky bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface/95 p-3 shadow-lg backdrop-blur sm:flex-row sm:justify-between">
+        <div className="w-full min-w-0 text-center sm:text-left">
+          <p className="text-sm text-ink-soft">
+            {season && <span className="font-semibold text-ink">Saison {season} · </span>}
+            {complete ? "Ton équipe est complète." : `Choisis ${EXT_COUNT} extérieurs et ${INT_COUNT} intérieurs.`}
+          </p>
+          {chosen.length > 0 && (
+            <ul className="mt-1 flex flex-wrap justify-center gap-1 sm:justify-start" aria-label="Ton 5">
+              {chosen.map(({ side, player }) => (
+                <li key={side + player.id} className="rounded-full bg-teal-soft px-2 py-0.5 text-xs font-semibold">
+                  {player.full_name}
+                  <span className="ml-1 font-normal text-ink-soft">{side === "ext" ? "Ext" : "Int"}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <Submit disabled={!complete} />
       </div>
       {state?.error && (

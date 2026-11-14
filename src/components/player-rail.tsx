@@ -113,7 +113,7 @@ export function PlayerRail({
                 )}
               </div>
               <figcaption className="mt-1.5 rounded-md px-2.5 py-2" style={{ background: promo.color_primary }}>
-                <p className="truncate font-display text-base font-bold uppercase leading-tight text-white">{pl.full_name}</p>
+                <p className="ebl-name line-clamp-2 font-display text-base font-bold uppercase leading-tight text-white">{pl.full_name}</p>
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: readableAccent(promo.color_secondary) }}>
                   {pl.position ?? "Joueur"}
                   {pl.is_captain ? " · Capitaine" : ""}

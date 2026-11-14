@@ -37,7 +37,7 @@ export default async function CaptainVotePage({ params }: Props) {
     <>
       <PageTitle
         kicker={`Vote capitaine · ${promoName(promo)}`}
-        title={`All-EBL Team ${label}`}
+        title={`All-Star EBL Team ${label}`}
         intro="Ton bulletin compte dans la moitié « capitaines » du vote. Tu ne peux pas voter pour un joueur de ta promo, et ce lien ne sert qu'une fois."
       />
       <Section title="Ton bulletin">

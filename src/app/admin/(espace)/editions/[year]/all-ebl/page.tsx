@@ -34,9 +34,9 @@ export default async function AdminAllEbl({ params }: Props) {
   if (settingsRes.error) {
     return (
       <section className="rounded-2xl border border-line bg-surface p-5">
-        <h1 className="mb-2 font-display text-2xl font-bold uppercase">All-EBL Team</h1>
+        <h1 className="mb-2 font-display text-2xl font-bold uppercase">All-Star EBL Team</h1>
         <p className="text-sm text-ink-soft">
-          L&apos;All-EBL Team n&apos;est pas encore activée dans la base (migration{" "}
+          L&apos;All-Star EBL Team n&apos;est pas encore activée dans la base (migration{" "}
           <code>supabase/migrations/0007_all_ebl.sql</code>).
         </p>
       </section>
@@ -76,10 +76,10 @@ export default async function AdminAllEbl({ params }: Props) {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-3xl font-bold uppercase">All-EBL Team {seasonLabel(year)}</h1>
+        <h1 className="font-display text-3xl font-bold uppercase">All-Star EBL Team {seasonLabel(year)}</h1>
         <div className="flex gap-3 text-sm">
-          <Link href="/all-ebl" target="_blank" className="text-teal">
-            Page All-EBL ↗
+          <Link href="/all-star" target="_blank" className="text-teal">
+            Page All-Star ↗
           </Link>
           <Link href="/vote" target="_blank" className="text-teal">
             Page de vote ↗
@@ -103,7 +103,7 @@ export default async function AdminAllEbl({ params }: Props) {
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="published" defaultChecked={s.allebl_published} className="mt-1" />
             <span>
-              <strong>Publier</strong> : rend /vote et /all-ebl visibles par tous et affiche le bandeau « Vote ouvert »
+              <strong>Publier</strong> : rend /vote et /all-star visibles par tous et affiche le bandeau « Vote ouvert »
               sur l&apos;accueil. Décoché, seuls les admins connectés voient ces pages.
             </span>
           </label>

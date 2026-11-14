@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!admin) redirect("/admin/connexion");
 
   return (
-    <div className="md:flex">
+    <div className="md:flex" data-admin-space>
       <AdminSidebar username={admin.user_metadata.username ?? admin.email ?? "admin"} />
       <div className="mx-auto w-full min-w-0 max-w-4xl px-4 py-6">{children}</div>
     </div>
