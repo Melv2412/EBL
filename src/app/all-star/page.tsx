@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import { electTeam, formatWhen, getAllEbl, getTally, scoreTally, votePhase } from "@/lib/allebl";
+import { electTeam, formatWhen, getAllEbl, getTally, publicWeight, scoreTally, votePhase } from "@/lib/allebl";
 import { buildLeague, parseSeason, promoCode, promoName, promoSlug, seasonLabel } from "@/lib/league";
 import { currentAdmin, supabaseServer } from "@/lib/supabase-server";
 import { AllEblCourt } from "@/components/all-ebl-court";
@@ -45,7 +45,8 @@ export default async function AllEblPage({ searchParams }: Props) {
 
   // Les admins voient le décompte en direct ; le public seulement une fois le vote clos et publié.
   const tally = await getTally(s.start_year, admin ? await supabaseServer() : undefined);
-  const scored = scoreTally(tally);
+  const scored = scoreTally(tally, s.start_year);
+  const publicPct = Math.round(publicWeight(s.start_year) * 100);
   const name = (id: number) => data.players.find((p) => p.id === id)?.full_name ?? "";
   const team = electTeam(scored, name);
   const showResults = phase === "clos" || (admin && scored.some((x) => x.public_ballots || x.captain_ballots));
@@ -139,7 +140,7 @@ export default async function AllEblPage({ searchParams }: Props) {
             </dl>
             <p className={styles.formula}>
               {publicBallots > 0 && captainBallots > 0
-                ? "Score sur 100 : 50 % public, 50 % capitaines."
+                ? `Score sur 100 : ${publicPct} % public, ${100 - publicPct} % capitaines.`
                 : publicBallots > 0
                   ? "Score sur 100 : seuls les bulletins du public ont été exprimés, ils comptent pour 100 %."
                   : captainBallots > 0

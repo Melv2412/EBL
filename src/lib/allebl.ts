@@ -83,15 +83,20 @@ export async function getTally(year: number, db = publicDb()) {
 
 export type ScoredCandidate = TallyRow & { score: number; publicShare: number; captainShare: number };
 
+/** Part du public dans le score ; les saisons déjà votées gardent leur règle de l'époque. */
+export function publicWeight(year: number) {
+  return year >= 2026 ? 0.6 : 0.5;
+}
+
 /**
- * Score = 50 % part des bulletins du public + 50 % part des bulletins des capitaines.
+ * Score = part du public × bulletins du public + part des capitaines × bulletins des capitaines.
  * S'il n'y a aucun bulletin d'un côté, l'autre compte pour 100 %.
  */
-export function scoreTally(rows: TallyRow[]): ScoredCandidate[] {
+export function scoreTally(rows: TallyRow[], year: number): ScoredCandidate[] {
   const pb = rows[0]?.public_ballots ?? 0;
   const cb = rows[0]?.captain_ballots ?? 0;
-  const wp = pb && cb ? 0.5 : pb ? 1 : 0;
-  const wc = pb && cb ? 0.5 : cb ? 1 : 0;
+  const wp = pb && cb ? publicWeight(year) : pb ? 1 : 0;
+  const wc = pb && cb ? 1 - publicWeight(year) : cb ? 1 : 0;
   return rows.map((r) => {
     const publicShare = pb ? r.public_votes / pb : 0;
     const captainShare = cb ? r.captain_votes / cb : 0;
@@ -147,7 +152,7 @@ export async function publishedTeam(year: number, data: { players: Player[] }) {
   const s = settings.find((x) => x.start_year === year);
   if (!s?.allebl_published || votePhase(s) !== "clos") return null;
   const name = (id: number) => data.players.find((p) => p.id === id)?.full_name ?? "";
-  const team = electTeam(scoreTally(await getTally(year)), name);
+  const team = electTeam(scoreTally(await getTally(year), year), name);
   return team.ext.length + team.int.length > 0 ? team : null;
 }
 

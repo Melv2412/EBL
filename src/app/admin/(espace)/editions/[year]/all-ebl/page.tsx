@@ -57,7 +57,7 @@ export default async function AdminAllEbl({ params }: Props) {
     .filter((g) => g.players.length > 0);
   const captainPromos = promos.filter((p) => e.teams.some((t) => t.number === p.number) || byPromo.some((g) => g.promo.number === p.number));
 
-  const scored = scoreTally(tally);
+  const scored = scoreTally(tally, year);
   const name = (id: number) => data.players.find((p) => p.id === id)?.full_name ?? "";
   const team = electTeam(scored, name);
   const elected = new Set([...team.ext, ...team.int].map((c) => `${c.side}-${c.player_id}`));

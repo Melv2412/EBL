@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import { ballotCandidates, formatWhen, getAllEbl, votePhase } from "@/lib/allebl";
+import { ballotCandidates, formatWhen, getAllEbl, publicWeight, votePhase } from "@/lib/allebl";
 import { seasonLabel } from "@/lib/league";
 import { currentAdmin } from "@/lib/supabase-server";
 import { Ballot } from "@/components/ballot";
@@ -40,13 +40,14 @@ export default async function VotePage() {
   const label = seasonLabel(s.start_year);
   const list = ballotCandidates(s.start_year, candidates, data.players, data.promos);
   const voted = await hasVoted(s.start_year);
+  const publicPct = Math.round(publicWeight(s.start_year) * 100);
 
   return (
     <>
       <PageTitle
         kicker={`All-Star EBL Team ${label}`}
         title="Élis le 5 de la saison"
-        intro="3 extérieurs et 2 intérieurs. Ton vote compte pour moitié, celui des capitaines de chaque promo pour l'autre moitié."
+        intro={`3 extérieurs et 2 intérieurs. Le vote du public compte pour ${publicPct} %, celui des capitaines de chaque promo pour ${100 - publicPct} %.`}
       />
       {!s.allebl_published && (
         <div className="mx-auto mt-6 max-w-6xl px-4">

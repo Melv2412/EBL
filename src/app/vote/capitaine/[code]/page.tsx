@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { getLeagueData } from "@/lib/data";
-import { ballotCandidates, formatWhen, getAllEbl, votePhase } from "@/lib/allebl";
+import { ballotCandidates, formatWhen, getAllEbl, publicWeight, votePhase } from "@/lib/allebl";
 import { buildLeague, promoName, seasonLabel } from "@/lib/league";
 import { Ballot } from "@/components/ballot";
 import { PageTitle, Section } from "@/components/ui";
@@ -38,7 +38,7 @@ export default async function CaptainVotePage({ params }: Props) {
       <PageTitle
         kicker={`Vote capitaine · ${promoName(promo)}`}
         title={`All-Star EBL Team ${label}`}
-        intro="Ton bulletin compte dans la moitié « capitaines » du vote. Tu ne peux pas voter pour un joueur de ta promo, et ce lien ne sert qu'une fois."
+        intro={`Ton bulletin compte dans la part « capitaines » du vote (${100 - Math.round(publicWeight(s.start_year) * 100)} %). Tu ne peux pas voter pour un joueur de ta promo, et ce lien ne sert qu'une fois.`}
       />
       <Section title="Ton bulletin">
         {link.used && <p className="text-ink-soft">Ce lien a déjà servi : ton vote est enregistré. Merci !</p>}
