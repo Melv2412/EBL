@@ -1,20 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
+import { flushSync } from "react-dom";
 
 /** Bouton clair / sombre. Clair par défaut ; le choix est gardé sur l'appareil. */
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
   useEffect(() => setDark(document.documentElement.dataset.theme === "dark"), []);
 
-  const toggle = () => {
+  const toggle = (event: MouseEvent<HTMLButtonElement>) => {
     const next = !dark;
-    setDark(next);
-    if (next) document.documentElement.dataset.theme = "dark";
-    else delete document.documentElement.dataset.theme;
+    const root = document.documentElement;
+    const apply = () => {
+      flushSync(() => setDark(next));
+      if (next) root.dataset.theme = "dark";
+      else delete root.dataset.theme;
+    };
     try {
       localStorage.setItem("ebl-theme", next ? "dark" : "light");
     } catch {}
+
+    if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      apply();
+      return;
+    }
+
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(apply).ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: "cubic-bezier(0.4, 0, 0.2, 1)", pseudoElement: "::view-transition-new(root)" },
+      );
+    });
   };
 
   return (

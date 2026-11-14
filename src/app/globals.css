@@ -187,6 +187,13 @@ body {
   .ebl-page { animation: none; }
 }
 
+/* Changement de thème : la vague est animée par ThemeToggle, sans fondu par défaut. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* Admin sur mobile : la barre d'onglets fixe en bas ne doit pas cacher la fin de la page. */
 @media (width < 48rem) {
   body:has([data-admin-tabbar]) { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }

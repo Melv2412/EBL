@@ -11,15 +11,14 @@ import {
   promoCode,
   promoName,
   promoSlug,
-  seasonLabel,
   type EditionView,
   type League,
 } from "@/lib/league";
-import type { Player, Promo, Series } from "@/lib/types";
+import type { Promo, Series } from "@/lib/types";
 import { PromoBadge } from "@/components/promo-badge";
 import { Countdown } from "@/components/countdown";
 import { HowItWorks } from "@/components/how-it-works";
-import { latestPublishedTeam, openPublishedVote, type ScoredCandidate } from "@/lib/allebl";
+import { openPublishedVote } from "@/lib/allebl";
 import { Tie } from "@/components/icons";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
@@ -42,7 +41,6 @@ export default async function Home() {
         ? { kind: "champion" as const, edition: championEdition }
         : null;
   const voteOpen = await openPublishedVote();
-  const allEbl = voteOpen ? null : await latestPublishedTeam(data);
   const known = league.editions.filter((e) => e.known);
   const missing = league.editions.filter((e) => !e.known);
 
@@ -58,8 +56,6 @@ export default async function Home() {
           secondary={{ href: "/promos", label: "Les promos" }}
         />
       )}
-
-      {allEbl && <AllEblTeaser year={allEbl.year} team={allEbl.team} players={data.players} />}
 
       <HowItWorks />
 
@@ -107,29 +103,6 @@ export default async function Home() {
         </section>
       )}
     </>
-  );
-}
-
-/** Après le vote : l'équipe élue en une ligne, vers le détail. */
-function AllEblTeaser({ year, team, players }: { year: number; team: { ext: ScoredCandidate[]; int: ScoredCandidate[] }; players: Player[] }) {
-  const name = (id: number) => players.find((p) => p.id === id)?.full_name ?? "";
-  const label = seasonLabel(year);
-  return (
-    <section className="mx-auto max-w-6xl px-4 pt-10">
-      <Link
-        href={`/all-star?saison=${label}`}
-        className="flex flex-col items-start gap-3 rounded-2xl border-2 border-gold bg-gold/10 p-5 transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <span>
-          <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">All-Star EBL Team {label}</span>
-          <span className="font-display text-2xl font-bold uppercase">L&apos;équipe type est connue</span>
-          <span className="mt-1 block text-sm text-ink-soft">
-            {[...team.ext, ...team.int].map((c) => name(c.player_id)).join(" · ")}
-          </span>
-        </span>
-        <span className="shrink-0 rounded-full bg-gold px-4 py-2 text-sm font-semibold text-night">Voir l&apos;équipe →</span>
-      </Link>
-    </section>
   );
 }
 
