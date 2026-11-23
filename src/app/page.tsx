@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getLeagueData } from "@/lib/data";
 import { getHomeSettings } from "@/lib/home-settings";
@@ -7,6 +8,7 @@ import {
   WHATSAPP_URL,
   LEVEL_TIE,
   buildLeague,
+  darkenHex,
   levelOf,
   promoCode,
   promoName,
@@ -19,7 +21,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { Countdown } from "@/components/countdown";
 import { HowItWorks } from "@/components/how-it-works";
 import { openPublishedVote } from "@/lib/allebl";
-import { Tie } from "@/components/icons";
+import { LineIcon, Tie, TieChip } from "@/components/icons";
 import { EditionCard, PromoCard } from "@/components/cards";
 import { Section, seriesScore } from "@/components/ui";
 
@@ -56,6 +58,8 @@ export default async function Home() {
           secondary={{ href: "/promos", label: "Les promos" }}
         />
       )}
+
+      {championEdition && spot?.kind !== "champion" && <ChampionCard edition={championEdition} />}
 
       <HowItWorks />
 
@@ -228,6 +232,65 @@ function ChampionHero({ edition }: { edition: EditionView }) {
           </Link>
         </div>
       </div>
+    </section>
+  );
+}
+
+/** Champion en titre : tout vient de la dernière édition gagnée, rien n'est écrit à la main. */
+function ChampionCard({ edition }: { edition: EditionView }) {
+  const champ = edition.champion!;
+  const level = levelOf(champ, edition.start_year);
+  return (
+    <section className="mx-auto max-w-6xl px-4 pt-14" data-reveal>
+      <article className="grid overflow-hidden rounded-3xl bg-night text-white md:grid-cols-[1.1fr_1fr]">
+        <div
+          className="relative min-h-60 md:min-h-[360px]"
+          style={champ.team_photo_url ? undefined : { background: `linear-gradient(140deg, ${champ.color_primary}, ${darkenHex(champ.color_primary)})` }}
+        >
+          {champ.team_photo_url ? (
+            <Image
+              src={champ.team_photo_url}
+              alt={`L'équipe ${promoName(champ)}, championne ${edition.label}`}
+              fill
+              sizes="(min-width: 768px) 600px, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 grid place-items-center">
+              <PromoBadge promo={champ} size={160} className="!rounded-full opacity-90" />
+            </div>
+          )}
+          <span
+            aria-hidden
+            className="absolute inset-0 bg-[linear-gradient(180deg,transparent_50%,var(--night))] md:bg-[linear-gradient(90deg,transparent_50%,var(--night))]"
+          />
+        </div>
+        <div className="flex flex-col justify-center gap-[18px] p-6 md:p-10">
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+            <LineIcon name="trophy" size={16} />
+            Champion en titre · {edition.label}
+          </p>
+          <div className="flex items-center gap-3.5">
+            <PromoBadge promo={champ} size={64} className="!rounded-full border-[3px] border-gold" />
+            <div className="min-w-0">
+              <h2 className="ebl-name font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-bold uppercase leading-none">
+                {promoName(champ)}
+              </h2>
+              <TieChip level={level} className="mt-2 bg-night-2 text-white">
+                {promoCode(champ)} · {level}
+              </TieChip>
+            </div>
+          </div>
+          <div>
+            <Link
+              href={`/editions/${edition.label}`}
+              className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-night transition hover:brightness-110"
+            >
+              Revivre la saison <LineIcon name="arrow" size={16} />
+            </Link>
+          </div>
+        </div>
+      </article>
     </section>
   );
 }

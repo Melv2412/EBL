@@ -336,3 +336,11 @@ export function readableAccent(hex: string) {
   const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
   return lum < 90 ? "#e3b341" : hex;
 }
+
+/** Assombrit une couleur hexadécimale (amount entre 0 et 1), pour les dégradés aux couleurs d'une promo. */
+export function darkenHex(hex: string, amount = 0.55) {
+  const n = Number.parseInt(hex.replace("#", ""), 16);
+  if (!Number.isFinite(n)) return "#15191d";
+  const ch = (shift: number) => Math.round(((n >> shift) & 255) * (1 - amount));
+  return `#${[16, 8, 0].map((s) => ch(s).toString(16).padStart(2, "0")).join("")}`;
+}

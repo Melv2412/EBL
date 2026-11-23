@@ -56,3 +56,56 @@ export function Medal({ tone = "argent", size = 14, className = "" }: { tone?: k
     </svg>
   );
 }
+
+const LINE_ICONS = {
+  trophy: (
+    <>
+      <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+      <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v6M12 7.5h.01" />
+    </>
+  ),
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+};
+
+/** Icône au trait (24×24), couleur héritée du texte. */
+export function LineIcon({ name, size = 18, className = "" }: { name: keyof typeof LINE_ICONS; size?: number; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={`inline-block shrink-0 ${className}`}
+    >
+      {LINE_ICONS[name]}
+    </svg>
+  );
+}
+
+/** Pastille « ITxx · niveau » avec la couleur de cravate du niveau. */
+export function TieChip({ level, children, className = "" }: { level: Level | "Anciens" | null; children: React.ReactNode; className?: string }) {
+  const dot = level && level !== "Anciens" ? LEVEL_TIE[level].color : "linear-gradient(135deg, var(--gold), #b9862a)";
+  return (
+    <span className={`inline-flex h-7 items-center gap-2 whitespace-nowrap rounded-full px-3 text-xs font-semibold ${className}`}>
+      <span aria-hidden className="h-3.5 w-3.5 shrink-0 rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.15)]" style={{ background: dot }} />
+      {children}
+    </span>
+  );
+}
