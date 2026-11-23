@@ -6,7 +6,9 @@
     "data": "node scripts/fetch-data.mjs",
     "music": "node scripts/make-music.mjs",
     "studio": "remotion studio src/index.ts",
-    "render": "npm run data && npm run music && remotion render src/index.ts EBL out/ebl.mp4"
+    "render": "npm run data && npm run music && remotion render src/index.ts EBL out/ebl.mp4",
+    "trailer": "node scripts/trailer-assets.mjs && node scripts/make-trailer-music.mjs && remotion render src/index.ts Trailer out/bande-annonce.mp4",
+    "trailer:son": "node scripts/trailer-assets.mjs && node scripts/make-sfx.mjs && remotion render src/index.ts TrailerSon out/bande-annonce-son.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.535",

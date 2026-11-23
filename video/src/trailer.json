@@ -1,0 +1,31 @@
+{
+  "fps": 30,
+  "total": 1350,
+  "bpm": 100,
+  "scenes": {
+    "open": { "start": 0, "end": 120 },
+    "memories": { "start": 120, "end": 240 },
+    "champions": { "start": 240, "end": 450 },
+    "challenge": { "start": 450, "end": 570 },
+    "contenders": { "start": 570, "end": 720 },
+    "rookie": { "start": 720, "end": 870 },
+    "ladder": { "start": 870, "end": 1050 },
+    "ready": { "start": 1050, "end": 1230 },
+    "date": { "start": 1230, "end": 1350 }
+  },
+  "cues": {
+    "memoryCuts": [120, 144, 168, 192],
+    "championSlam": 252,
+    "challengeSmash": 510,
+    "contenderSlams": [576, 612, 648, 684],
+    "heartbeats": [735, 753],
+    "rookieReveal": 783,
+    "rookieVs": 828,
+    "ladderCuts": [870, 879, 888, 897, 906, 915, 924, 933, 942, 951],
+    "ties": [960, 972, 984, 996, 1008],
+    "readySlam": 1065,
+    "readyWave": 1110,
+    "readyCut": 1218,
+    "dateHit": 1239
+  }
+}
