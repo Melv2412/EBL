@@ -45,7 +45,8 @@ export default async function Home() {
         : null;
   const next = spot?.kind === "final" ? null : league.nextMatch();
   const voteOpen = await openPublishedVote();
-  const known = league.editions.filter((e) => e.known);
+  // Palmarès de l'accueil : seules les éditions qui ont un champion.
+  const known = league.editions.filter((e) => e.known && e.champion);
   const missing = league.editions.filter((e) => !e.known);
 
   return (
