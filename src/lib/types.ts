@@ -49,7 +49,23 @@ export type Game = {
   game_no: number;
   score_a: number | null;
   score_b: number | null;
+  /** MVP du match (facultatif) et jusqu'à 3 stats au choix. */
+  mvp_player_id?: number | null;
+  mvp_stats?: MatchStat[] | null;
 };
+
+export const MATCH_STATS = {
+  pts: { short: "pts", label: "Points" },
+  reb: { short: "reb", label: "Rebonds" },
+  pass: { short: "pass", label: "Passes" },
+  int: { short: "int", label: "Interceptions" },
+  ctr: { short: "ctr", label: "Contres" },
+  "3pts": { short: "à 3 pts", label: "Tirs à 3 points" },
+} as const;
+
+export type MatchStatKey = keyof typeof MATCH_STATS;
+export type MatchStat = { stat: MatchStatKey; value: number };
+export const MAX_MATCH_STATS = 3;
 
 export type EditionTeam = {
   edition_year: number;

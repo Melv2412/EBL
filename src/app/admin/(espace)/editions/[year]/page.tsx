@@ -20,6 +20,7 @@ import {
   saveTeams,
 } from "../../../actions";
 import { ActionForm, DeleteButton, inputCls, labelCls } from "../../../form";
+import { MATCH_STATS, MAX_MATCH_STATS, type Game, type MatchStatKey, type Player } from "@/lib/types";
 
 type Props = { params: Promise<{ year: string }> };
 
@@ -65,7 +66,7 @@ export default async function AdminEdition({ params }: Props) {
       {e.final && (
         <Card title={e.final.winner ? "Finale (terminée)" : "Finale · match sec"}>
           <p className="mb-3 font-semibold">{matchTitle(e.final, league)}</p>
-          <SeriesForm series={e.final} year={year} league={league} options={promoOptions} />
+          <SeriesForm series={e.final} year={year} league={league} options={promoOptions} players={data.players} />
         </Card>
       )}
 
@@ -75,7 +76,7 @@ export default async function AdminEdition({ params }: Props) {
             {e.semis.map((s) => (
               <div key={s.id} className="rounded-xl border border-line p-4">
                 <p className="mb-3 font-semibold">{matchTitle(s, league)}</p>
-                <SeriesForm series={s} year={year} league={league} options={promoOptions} />
+                <SeriesForm series={s} year={year} league={league} options={promoOptions} players={data.players} />
               </div>
             ))}
           </div>
@@ -136,7 +137,7 @@ export default async function AdminEdition({ params }: Props) {
                     </span>
                   </summary>
                   <div className="space-y-3 border-t border-line p-4">
-                    <SeriesForm series={s} year={year} league={league} options={promoOptions} />
+                    <SeriesForm series={s} year={year} league={league} options={promoOptions} players={data.players} />
                     <DeleteButton action={deleteSeries} fields={{ id: s.id }} confirmText="Supprimer ce match ?" />
                   </div>
                 </details>
@@ -361,11 +362,13 @@ function SeriesForm({
   year,
   league,
   options,
+  players = [],
 }: {
   series?: SeriesView;
   year: number;
   league: League;
   options?: { value: number; label: string }[];
+  players?: Player[];
 }) {
   const bestOf = series?.best_of ?? 3;
   const nameA = series ? promoName(league.promo(series.promo_a)!) : "Équipe A";
@@ -373,6 +376,11 @@ function SeriesForm({
   const game = (n: number) => series?.games.find((g) => g.game_no === n);
   const side = series?.winner == null ? "" : series.winner === series.promo_a ? "a" : "b";
   const hasScores = (series?.games.length ?? 0) > 0;
+  const matchPlayers = series
+    ? players
+        .filter((p) => p.promo === series.promo_a || p.promo === series.promo_b)
+        .sort((x, y) => (x.promo === y.promo ? x.full_name.localeCompare(y.full_name) : x.promo === series.promo_a ? -1 : 1))
+    : [];
 
   return (
     <ActionForm action={saveSeries}>
@@ -464,6 +472,11 @@ function SeriesForm({
           </div>
         ))}
         {!series && <p className="text-xs text-ink-soft">Pour un match sec, ne remplis que la manche 1.</p>}
+        {!series && <p className="text-xs text-ink-soft">Le MVP et ses stats se saisissent une fois le match créé.</p>}
+        {series &&
+          Array.from({ length: bestOf }, (_, i) => i + 1).map((n) => (
+            <MvpFields key={n} n={n} single={bestOf === 1} game={game(n)} players={matchPlayers} league={league} />
+          ))}
       </div>
 
       <label className={labelCls}>
@@ -505,6 +518,72 @@ function SeriesForm({
         </div>
       </details>
     </ActionForm>
+  );
+}
+
+/** MVP d'une manche et jusqu'à 3 stats au choix (ex. points, passes, rebonds). */
+function MvpFields({
+  n,
+  single,
+  game,
+  players,
+  league,
+}: {
+  n: number;
+  single: boolean;
+  game?: Game;
+  players: Player[];
+  league: League;
+}) {
+  const stats = game?.mvp_stats ?? [];
+  const byPromo = new Map<number, Player[]>();
+  for (const p of players) byPromo.set(p.promo, [...(byPromo.get(p.promo) ?? []), p]);
+  return (
+    <details open={Boolean(game?.mvp_player_id)} className="rounded-lg border border-line p-3 text-sm">
+      <summary className="cursor-pointer text-ink-soft">MVP et stats{single ? "" : ` · manche ${n}`}</summary>
+      <div className="mt-3 space-y-3">
+        <label className={labelCls}>
+          <span>MVP</span>
+          <select name={`mvp_${n}`} defaultValue={game?.mvp_player_id ?? ""} className={inputCls}>
+            <option value="">Pas de MVP</option>
+            {[...byPromo].map(([promo, list]) => (
+              <optgroup key={promo} label={promoName(league.promo(promo)!)}>
+                {list.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.full_name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+        {players.length === 0 && <p className="text-xs text-ink-soft">Aucun joueur dans l&apos;effectif de ces deux promos.</p>}
+        <div className="space-y-2">
+          {Array.from({ length: MAX_MATCH_STATS }, (_, i) => i + 1).map((k) => (
+            <div key={k} className="grid grid-cols-[1fr_6rem] gap-2">
+              <select name={`stat_${n}_${k}`} defaultValue={stats[k - 1]?.stat ?? ""} aria-label={`Stat ${k}`} className={inputCls}>
+                <option value="">Stat {k} (facultative)</option>
+                {(Object.keys(MATCH_STATS) as MatchStatKey[]).map((key) => (
+                  <option key={key} value={key}>
+                    {MATCH_STATS[key].label}
+                  </option>
+                ))}
+              </select>
+              <input
+                name={`val_${n}_${k}`}
+                type="number"
+                min={0}
+                inputMode="numeric"
+                aria-label={`Valeur de la stat ${k}`}
+                defaultValue={stats[k - 1]?.value ?? ""}
+                className={inputCls}
+              />
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-ink-soft">3 stats au plus, au choix : par exemple points, passes et rebonds.</p>
+      </div>
+    </details>
   );
 }
 

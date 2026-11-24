@@ -18,7 +18,8 @@ export const getLeagueData = cache(async (): Promise<LeagueData> => {
     db.from("series").select("*").order("id"),
     db.from("players").select("*").order("full_name"),
     db.from("awards").select("*").order("id"),
-    db.from("games").select("id, series_id, game_no, score_a, score_b").order("game_no"),
+    // « * » : le MVP et ses stats (migration 0013) sont lus s'ils existent, sans casser une base pas encore migrée.
+    db.from("games").select("*").order("game_no"),
     db.from("edition_teams").select("*"),
     db.from("semifinalists").select("*"),
   ]);

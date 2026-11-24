@@ -8,6 +8,7 @@ import { buildLeague } from "@/lib/league";
 import { isHomeMode, type HomeSettings } from "@/lib/home-settings";
 import { HOME_SLIDES, orderedHomeSlides } from "@/lib/home-slides";
 import { randomUUID } from "node:crypto";
+import { MATCH_STATS, MAX_MATCH_STATS, type MatchStat, type MatchStatKey } from "@/lib/types";
 
 export type FormState = { ok?: string; error?: string } | null;
 
@@ -216,17 +217,38 @@ export async function deleteEdition(fd: FormData) {
 
 /** Manches saisies (score_a_1, score_b_1, …) : seules les manches complètes comptent. */
 function gamesFrom(fd: FormData, bestOf: number) {
-  const games: { game_no: number; score_a: number; score_b: number }[] = [];
+  const games: { game_no: number; score_a: number; score_b: number; mvp_player_id: number | null; mvp_stats: MatchStat[] }[] = [];
   for (let n = 1; n <= bestOf; n++) {
     const a = int(fd, `score_a_${n}`);
     const b = int(fd, `score_b_${n}`);
-    if (a === null && b === null) continue;
+    const mvp = mvpFrom(fd, n);
+    if (a === null && b === null) {
+      if (mvp.mvp_player_id !== null || mvp.mvp_stats.length) throw new Error(`Manche ${n} : saisis le score avant le MVP.`);
+      continue;
+    }
     if (a === null || b === null) throw new Error(`Manche ${n} : il manque un des deux scores.`);
     if (a < 0 || b < 0) throw new Error(`Manche ${n} : score négatif.`);
     if (a === b) throw new Error(`Manche ${n} : pas de match nul au basket.`);
-    games.push({ game_no: n, score_a: a, score_b: b });
+    games.push({ game_no: n, score_a: a, score_b: b, ...mvp });
   }
   return games;
+}
+
+/** MVP d'une manche (mvp_1) et ses stats (stat_1_1 / val_1_1 …), 3 au plus, sans doublon. */
+function mvpFrom(fd: FormData, n: number) {
+  const mvp_player_id = int(fd, `mvp_${n}`);
+  const mvp_stats: MatchStat[] = [];
+  for (let k = 1; k <= MAX_MATCH_STATS; k++) {
+    const stat = text(fd, `stat_${n}_${k}`);
+    const value = int(fd, `val_${n}_${k}`);
+    if (!stat && value === null) continue;
+    if (!stat || !(stat in MATCH_STATS)) throw new Error(`Manche ${n} : choisis la stat n°${k}.`);
+    if (value === null || value < 0) throw new Error(`Manche ${n} : valeur manquante pour ${MATCH_STATS[stat as MatchStatKey].label}.`);
+    if (mvp_stats.some((x) => x.stat === stat)) throw new Error(`Manche ${n} : ${MATCH_STATS[stat as MatchStatKey].label} est saisie deux fois.`);
+    mvp_stats.push({ stat: stat as MatchStatKey, value });
+  }
+  if (mvp_stats.length && mvp_player_id === null) throw new Error(`Manche ${n} : choisis le MVP de ces stats.`);
+  return { mvp_player_id, mvp_stats };
 }
 
 export async function saveSeries(_: FormState, fd: FormData) {
@@ -244,6 +266,12 @@ export async function saveSeries(_: FormState, fd: FormData) {
     if (!promo_a || !promo_b || promo_a === promo_b) throw new Error("Choisis deux promos différentes.");
 
     const games = gamesFrom(fd, best_of);
+    const mvpIds = [...new Set(games.map((g) => g.mvp_player_id).filter((x): x is number => x !== null))];
+    if (mvpIds.length) {
+      const rows = check<{ id: number; promo: number }[]>(await db.from("players").select("id, promo").in("id", mvpIds));
+      if (rows.length !== mvpIds.length || rows.some((r) => r.promo !== promo_a && r.promo !== promo_b))
+        throw new Error("Le MVP doit jouer dans une des deux équipes du match.");
+    }
     let winner: number | null;
     let wins_a: number | null;
     let wins_b: number | null;

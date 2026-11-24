@@ -313,6 +313,7 @@ export function buildLeague(data: LeagueData) {
     editions,
     promo: (n: number) => promoBy.get(n) ?? null,
     edition: (year: number) => editions.find((e) => e.start_year === year) ?? null,
+    player: (id: number) => playerBy.get(id) ?? null,
     playersOf: (p: Promo) => data.players.filter((pl) => pl.promo === p.number),
     awardsOf: (p: Promo) => editions.flatMap((e) => e.awards.filter((a) => a.promo.number === p.number)),
     journey,

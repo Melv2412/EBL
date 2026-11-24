@@ -12,6 +12,29 @@ import {
 } from "@/lib/league";
 import { PromoBadge } from "./promo-badge";
 import { LevelTag } from "./ui";
+import { MATCH_STATS, type Game } from "@/lib/types";
+
+/** « MVP Koné Sidick (IT13) · 18 pts · 9 reb · 6 pass » pour une manche, si le MVP est connu. */
+function MvpLine({ game, league, prefix, className = "" }: { game: Game; league: League; prefix?: string; className?: string }) {
+  const player = game.mvp_player_id ? league.player(game.mvp_player_id) : null;
+  if (!player) return null;
+  const promo = league.promo(player.promo);
+  const stats = (game.mvp_stats ?? []).filter((s) => s.stat in MATCH_STATS);
+  return (
+    <p className={`text-xs text-ink-soft ${className}`}>
+      {prefix && <span className="mr-1">{prefix}</span>}
+      <span className="font-semibold text-gold">MVP</span>{" "}
+      <span className="font-semibold text-ink">{player.full_name}</span>
+      {promo && <> ({promoCode(promo)})</>}
+      {stats.map((s) => (
+        <span key={s.stat}>
+          {" · "}
+          <span className="font-semibold tabular-nums text-ink">{s.value}</span> {MATCH_STATS[s.stat].short}
+        </span>
+      ))}
+    </p>
+  );
+}
 
 const dayFmt = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 
@@ -105,7 +128,8 @@ export function ResultsList({ edition, league, limit }: { edition: EditionView; 
         const b = league.promo(s.promo_b)!;
         const score = seriesScore(s);
         return (
-          <li key={s.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+          <li key={s.id} className="px-4 py-3 text-sm">
+            <div className="flex items-center gap-3">
             <span className="w-20 shrink-0 text-xs text-ink-soft">
               {formatDay(s.match_date) ?? ROUND_LABEL[s.round]}
               {s.match_date && s.round !== "poule" && <span className="block">{ROUND_LABEL[s.round]}</span>}
@@ -119,6 +143,16 @@ export function ResultsList({ edition, league, limit }: { edition: EditionView; 
               <PromoBadge promo={b} size={26} className="rounded-md" />
               <span className="ebl-name line-clamp-2">{promoName(b)}</span>
             </span>
+            </div>
+            {s.games.map((g) => (
+              <MvpLine
+                key={g.id}
+                game={g}
+                league={league}
+                prefix={s.best_of > 1 ? `Manche ${g.game_no} ·` : undefined}
+                className="mt-1.5 text-center"
+              />
+            ))}
           </li>
         );
       })}
@@ -170,6 +204,13 @@ export function SeriesCard({ series, league, year, big }: { series: SeriesView; 
         </div>
         {side(right)}
       </div>
+      {games.some((g) => g.mvp_player_id) && (
+        <div className="mt-4 space-y-1 border-t border-line pt-3 text-center">
+          {games.map((g) => (
+            <MvpLine key={g.id} game={g} league={league} prefix={series.best_of > 1 ? `Manche ${g.game_no} ·` : undefined} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
