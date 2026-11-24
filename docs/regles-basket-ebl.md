@@ -80,6 +80,38 @@ Le site EBL calcule ce classement automatiquement. Sur ClubSport, le plus simple
 
 ## 8. Plus tard (si tu es d'accord)
 
-EBL pourrait publier un flux public en lecture seule, `/api/basket/v1`, au format JSON. Il contiendrait les équipes, les matchs (statut, phase, édition), les scores, les MVP et les forfaits, avec une date de mise à jour pour chaque élément. ClubSport le lirait, et la recopie à la main disparaîtrait.
+EBL pourrait publier un flux public en lecture seule, à l'adresse `https://ebl-zeta.vercel.app/api/basket/v1`. Ce n'est pas une page à regarder : elle renvoie les données au format JSON. Le flux contiendrait :
 
-EBL n'aurait besoin d'aucun accès à ClubSport, ni à sa base, ni à son code. Le numéro de version dans l'adresse permet de faire évoluer le flux sans casser ton site.
+- les équipes ;
+- les matchs (statut, phase, édition) ;
+- les scores ;
+- les MVP ;
+- les forfaits ;
+- une date de mise à jour pour chaque élément.
+
+### Comment ça marcherait
+
+1. L'organisation du basket saisit un résultat dans l'admin EBL, comme aujourd'hui.
+2. EBL met aussitôt le flux à jour.
+3. **C'est ClubSport qui vient lire le flux.** EBL n'envoie rien vers ClubSport et n'écrit jamais dans son site.
+4. ClubSport affiche ensuite ces données à sa façon.
+
+La recopie à la main disparaît : on saisit une seule fois, dans EBL.
+
+### Quand ClubSport est-il à jour ?
+
+C'est toi qui décides comment ClubSport lit le flux :
+
+- **à chaque visite d'une page basket** : ClubSport est à jour immédiatement ;
+- **à intervalle régulier**, par exemple toutes les 5 ou 15 minutes, avec les données gardées en cache entre deux lectures : une nouvelle donnée peut mettre jusqu'à ce délai à apparaître.
+
+### Ce que chacun doit faire
+
+- **EBL** : créer le flux.
+- **ClubSport** : écrire le code qui lit le flux et range les données dans tes pages basket.
+
+### Pourquoi ClubSport lit, au lieu qu'EBL envoie
+
+- EBL n'a besoin d'aucun accès à ClubSport : ni à sa base, ni à son code.
+- Si un des deux sites a un problème, l'autre continue de fonctionner. ClubSport garde la dernière version lue.
+- Le numéro de version dans l'adresse (`v1`) permet de faire évoluer le flux sans casser ton site. Une version incompatible serait publiée en `v2`, et `v1` resterait en place.
