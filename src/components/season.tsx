@@ -114,9 +114,9 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
       </table>
       {rows.length > QUALIFIED && (
         <p className="border-t border-line px-4 py-2 text-xs text-ink-soft">
-          Victoire {WIN_POINTS} pts, défaite {LOSS_POINTS} pt, forfait 0 pt (perdu 20-0). À égalité : matchs entre les
-          équipes concernées, puis différence de points, puis points marqués. Les {QUALIFIED} premiers vont en
-          demi-finales (1er contre 4e, 2e contre 3e).
+          Classement au nombre de victoires, puis à la différence de points, puis aux points marqués. Pts : victoire{" "}
+          {WIN_POINTS}, défaite {LOSS_POINTS}, forfait 0 (perdu 20-0). Les {QUALIFIED} premiers vont en demi-finales
+          (1er contre 4e, 2e contre 3e).
         </p>
       )}
     </div>

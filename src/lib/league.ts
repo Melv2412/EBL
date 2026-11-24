@@ -190,7 +190,7 @@ export function buildLeague(data: LeagueData) {
     })
     .sort((a, b) => b.start_year - a.start_year);
 
-  /** Classement de la poule : voir standings.ts (forfait, mini-classement, différence, points marqués). */
+  /** Classement de la poule : voir standings.ts (victoires, différence, points marqués). */
   function standings(e: EditionView): StandingRow[] {
     const matches = e.poule.map((s) => {
       const g = s.games[0];
