@@ -1,6 +1,9 @@
 import Link from "next/link";
 import {
+  LOSS_POINTS,
   QUALIFIED,
+  WIN_POINTS,
+  formatTime,
   levelOf,
   promoCode,
   promoName,
@@ -66,11 +69,14 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
             </th>
             {!compact && (
               <th className="hidden px-2 py-3 text-center font-semibold sm:table-cell" title="Points marqués / encaissés">
-                Pts
+                P/C
               </th>
             )}
-            <th className="py-3 pl-2 pr-4 text-right font-semibold" title="Différence de points">
+            <th className="px-2 py-3 text-center font-semibold" title="Différence de points">
               +/-
+            </th>
+            <th className="py-3 pl-2 pr-4 text-right font-semibold" title={`Points au classement : ${WIN_POINTS} par victoire, ${LOSS_POINTS} par défaite`}>
+              Pts
             </th>
           </tr>
         </thead>
@@ -100,16 +106,59 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
                   {r.pointsFor}/{r.pointsAgainst}
                 </td>
               )}
-              <td className="py-2.5 pl-2 pr-4 text-right font-semibold tabular-nums">
-                {r.diff > 0 ? `+${r.diff}` : r.diff}
-              </td>
+              <td className="px-2 py-2.5 text-center tabular-nums">{r.diff > 0 ? `+${r.diff}` : r.diff}</td>
+              <td className="py-2.5 pl-2 pr-4 text-right font-display text-base font-bold tabular-nums">{r.points}</td>
             </tr>
           ))}
         </tbody>
       </table>
       {rows.length > QUALIFIED && (
         <p className="border-t border-line px-4 py-2 text-xs text-ink-soft">
-          Les {QUALIFIED} premiers vont en demi-finales (1er contre 4e, 2e contre 3e).
+          Victoire {WIN_POINTS} pts, défaite {LOSS_POINTS} pt. Les {QUALIFIED} premiers vont en demi-finales (1er
+          contre 4e, 2e contre 3e).
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Matchs de poule à jouer : date et heure, puis les deux équipes. */
+export function UpcomingList({ edition, league }: { edition: EditionView; league: League }) {
+  const list = league.upcoming(edition);
+  if (list.length === 0) return null;
+  const dated = list.filter((s) => s.match_date);
+  const undated = list.length - dated.length;
+  return (
+    <div>
+      {dated.length > 0 && (
+        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+          {dated.map((s) => {
+            const a = league.promo(s.promo_a)!;
+            const b = league.promo(s.promo_b)!;
+            return (
+              <li key={s.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                <span className="w-20 shrink-0 text-xs">
+                  <span className="block font-semibold capitalize text-teal">{formatDay(s.match_date)}</span>
+                  {s.match_time && <span className="text-ink-soft">{formatTime(s.match_time)}</span>}
+                </span>
+                <span className="flex min-w-0 flex-1 items-center justify-end gap-2 text-right font-semibold">
+                  <span className="ebl-name line-clamp-2">{promoName(a)}</span>
+                  <PromoBadge promo={a} size={26} className="rounded-md" />
+                </span>
+                <span className="w-10 shrink-0 text-center text-xs font-semibold uppercase text-ink-soft">vs</span>
+                <span className="flex min-w-0 flex-1 items-center gap-2 font-semibold">
+                  <PromoBadge promo={b} size={26} className="rounded-md" />
+                  <span className="ebl-name line-clamp-2">{promoName(b)}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {undated > 0 && (
+        <p className="mt-3 text-sm text-ink-soft">
+          {dated.length > 0 ? "Et " : ""}
+          {undated} match{undated > 1 ? "s" : ""} de poule {undated > 1 ? "restent" : "reste"} à programmer.
         </p>
       )}
     </div>

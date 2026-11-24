@@ -26,6 +26,7 @@ const FIELD: Record<string, Record<string, string>> = {
     wins_b: "manches B",
     best_of: "format",
     match_date: "date",
+    match_time: "heure",
     round: "tour",
   },
   games: { score_a: "score A", score_b: "score B", mvp_player_id: "MVP", mvp_stats: "stats du MVP" },

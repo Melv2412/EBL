@@ -40,6 +40,8 @@ export type Series = {
   wins_b: number | null;
   best_of: number;
   match_date: string | null;
+  /** « 18:05:00 » ; absent tant que la migration 0014 n'est pas passée. */
+  match_time?: string | null;
 };
 
 /** Score d'une manche (un match sec n'a qu'une manche). */

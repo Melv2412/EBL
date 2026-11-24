@@ -9,6 +9,7 @@ import {
   LEVEL_TIE,
   buildLeague,
   darkenHex,
+  formatTime,
   levelOf,
   promoCode,
   promoName,
@@ -42,6 +43,7 @@ export default async function Home() {
       : settings.mode === "champion" && championEdition
         ? { kind: "champion" as const, edition: championEdition }
         : null;
+  const next = spot?.kind === "final" ? null : league.nextMatch();
   const voteOpen = await openPublishedVote();
   const known = league.editions.filter((e) => e.known);
   const missing = league.editions.filter((e) => !e.known);
@@ -58,6 +60,8 @@ export default async function Home() {
           secondary={{ href: "/promos", label: "Les promos" }}
         />
       )}
+
+      {next && <NextMatchCard league={league} edition={next.edition} series={next.series} />}
 
       {championEdition && spot?.kind !== "champion" && <ChampionCard edition={championEdition} />}
 
@@ -292,6 +296,65 @@ function ChampionCard({ edition }: { edition: EditionView }) {
         </div>
       </article>
     </section>
+  );
+}
+
+/** Prochain match daté de la saison (hors finale, qui a sa propre une). */
+function NextMatchCard({ league, edition, series }: { league: League; edition: EditionView; series: Series }) {
+  const a = league.promo(series.promo_a)!;
+  const b = league.promo(series.promo_b)!;
+  const today = new Date().toISOString().slice(0, 10);
+  const day = series.match_date === today ? "Aujourd'hui" : dateFmt.format(new Date(`${series.match_date}T00:00:00Z`));
+  const time = formatTime(series.match_time);
+  const round = series.round === "demi" ? "Demi-finale" : "Poule";
+  return (
+    <section className="mx-auto max-w-6xl px-4 pt-14" data-reveal>
+      <Link
+        href={`/editions/${edition.label}`}
+        className="group relative block overflow-hidden rounded-3xl bg-night text-white"
+      >
+        <span
+          aria-hidden
+          className="absolute inset-0 opacity-60"
+          style={{
+            background: `linear-gradient(90deg, ${darkenHex(a.color_primary, 0.3)} 0%, transparent 42%, transparent 58%, ${darkenHex(b.color_primary, 0.3)} 100%)`,
+          }}
+        />
+        <div className="relative p-6 md:p-8">
+          <p className="flex flex-wrap items-center justify-center gap-x-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+            <LineIcon name="calendar" size={16} />
+            Prochain match · {round} {edition.label}
+          </p>
+          <div className="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+            <NextTeam promo={a} />
+            <div className="text-center">
+              <p className="font-display text-2xl font-bold uppercase leading-none sm:text-3xl">vs</p>
+            </div>
+            <NextTeam promo={b} />
+          </div>
+          <p className="mt-5 text-center text-sm">
+            <span className="font-semibold capitalize">{day}</span>
+            {time ? ` · ${time}` : ""}
+            {edition.venue ? ` · ${edition.venue}` : ""}
+          </p>
+          <p className="mt-3 text-center text-xs text-white/70 transition group-hover:text-gold">
+            Classement et programme de la saison →
+          </p>
+        </div>
+      </Link>
+    </section>
+  );
+}
+
+function NextTeam({ promo }: { promo: Promo }) {
+  return (
+    <div className="flex min-w-0 flex-col items-center gap-2 text-center">
+      <PromoBadge promo={promo} size={72} className="!rounded-full border-[3px] border-white/80" />
+      <p className="ebl-name line-clamp-2 font-display text-lg font-bold uppercase leading-tight sm:text-2xl">
+        {promoName(promo)}
+      </p>
+      <p className="text-xs text-white/70">{promoCode(promo)}</p>
+    </div>
   );
 }
 

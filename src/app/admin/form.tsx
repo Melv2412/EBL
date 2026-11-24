@@ -10,6 +10,15 @@ export const inputCls =
   "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-base text-ink outline-none focus:border-teal sm:text-sm";
 export const labelCls = "block space-y-1 text-sm font-medium";
 
+/**
+ * La molette sur un champ nombre déjà sélectionné change sa valeur (47 devient 48 sans qu'on le voie) :
+ * on retire le focus, la page défile normalement et la valeur ne bouge pas.
+ */
+function ignoreWheelOnNumbers(e: React.WheelEvent<HTMLFormElement>) {
+  const t = e.target;
+  if (t instanceof HTMLInputElement && t.type === "number" && document.activeElement === t) t.blur();
+}
+
 /** Formulaire branché sur une action serveur, avec le message de retour en dessous. */
 export function ActionForm({
   action,
@@ -29,7 +38,7 @@ export function ActionForm({
     startTransition(() => formAction(ready));
   };
   return (
-    <form action={send} className={`space-y-3 ${className}`}>
+    <form action={send} onWheelCapture={ignoreWheelOnNumbers} className={`space-y-3 ${className}`}>
       {children}
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton label={submit} />

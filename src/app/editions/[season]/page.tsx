@@ -5,7 +5,7 @@ import { getLeagueData } from "@/lib/data";
 import { buildLeague, parseSeason, promoCode, promoName, promoSlug, seasonLabel } from "@/lib/league";
 import { PromoBadge } from "@/components/promo-badge";
 import { PageTitle, Section } from "@/components/ui";
-import { ProposedSemis, ResultsList, SeriesCard, StandingsTable } from "@/components/season";
+import { ProposedSemis, ResultsList, SeriesCard, StandingsTable, UpcomingList } from "@/components/season";
 import { AllEblCourt } from "@/components/all-ebl-court";
 import { AwardsBoard } from "@/components/awards-board";
 import { publishedTeam } from "@/lib/allebl";
@@ -78,6 +78,12 @@ export default async function EditionPage({ params }: Props) {
       {e.poule.length > 0 && (
         <Section title="La poule" kicker={`${e.teams.length} équipes · chacune joue une fois contre les autres`}>
           <StandingsTable edition={e} league={league} />
+        </Section>
+      )}
+
+      {league.upcoming(e).length > 0 && (
+        <Section title="Prochains matchs" kicker="Poule">
+          <UpcomingList edition={e} league={league} />
         </Section>
       )}
 

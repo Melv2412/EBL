@@ -299,7 +299,10 @@ export async function saveSeries(_: FormState, fd: FormData) {
       }
     }
 
-    const row = { edition_year, round, promo_a, promo_b, winner, wins_a, wins_b, best_of, match_date: text(fd, "match_date") };
+    const row: Record<string, unknown> = { edition_year, round, promo_a, promo_b, winner, wins_a, wins_b, best_of, match_date: text(fd, "match_date") };
+    // L'heure n'est écrite que si on la donne ou l'efface : sans la migration 0014, le reste s'enregistre quand même.
+    const match_time = text(fd, "match_time");
+    if (match_time || fd.get("had_time")) row.match_time = match_time;
     let seriesId = id;
     if (id) check(await db.from("series").update(row).eq("id", id));
     else seriesId = check<{ id: number }>(await db.from("series").insert(row).select("id").single()).id;

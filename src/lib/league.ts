@@ -42,6 +42,16 @@ export function promoName(p: Promo) {
   return p.name ?? promoCode(p);
 }
 
+/** Clé de tri chronologique ; un match sans date passe après les autres. */
+function kickoff(s: Series) {
+  return s.match_date ? `${s.match_date} ${s.match_time ?? "99"}` : "~";
+}
+
+/** « 18h05 », ou null si l'heure n'est pas connue. */
+export function formatTime(time: string | null | undefined) {
+  return time ? time.slice(0, 5).replace(":", "h") : null;
+}
+
 export function promoSlug(p: Pick<Promo, "number">) {
   return `it${p.number}`;
 }
@@ -85,10 +95,16 @@ export type StandingRow = {
   played: number;
   wins: number;
   losses: number;
+  /** Points au classement : 2 par victoire, 1 par défaite. */
+  points: number;
   pointsFor: number;
   pointsAgainst: number;
   diff: number;
 };
+
+/** Points au classement de poule. */
+export const WIN_POINTS = 2;
+export const LOSS_POINTS = 1;
 
 /** Nombre de qualifiés pour les demies. */
 export const QUALIFIED = 4;
@@ -172,12 +188,12 @@ export function buildLeague(data: LeagueData) {
     })
     .sort((a, b) => b.start_year - a.start_year);
 
-  /** Classement de la poule : victoires, puis différence de points, puis points marqués. */
+  /** Classement de la poule : points (victoire 2, défaite 1), puis différence de points, puis points marqués. */
   function standings(e: EditionView): StandingRow[] {
     const rows = new Map<number, StandingRow>(
       e.teams.map((p) => [
         p.number,
-        { promo: p, rank: 0, played: 0, wins: 0, losses: 0, pointsFor: 0, pointsAgainst: 0, diff: 0 },
+        { promo: p, rank: 0, played: 0, wins: 0, losses: 0, points: 0, pointsFor: 0, pointsAgainst: 0, diff: 0 },
       ]),
     );
     for (const s of e.poule) {
@@ -197,9 +213,13 @@ export function buildLeague(data: LeagueData) {
         b.pointsAgainst += g.score_a;
       }
     }
-    const list = [...rows.values()].map((r) => ({ ...r, diff: r.pointsFor - r.pointsAgainst }));
+    const list = [...rows.values()].map((r) => ({
+      ...r,
+      points: r.wins * WIN_POINTS + r.losses * LOSS_POINTS,
+      diff: r.pointsFor - r.pointsAgainst,
+    }));
     list.sort(
-      (x, y) => y.wins - x.wins || y.diff - x.diff || y.pointsFor - x.pointsFor || x.promo.number - y.promo.number,
+      (x, y) => y.points - x.points || y.diff - x.diff || y.pointsFor - x.pointsFor || x.promo.number - y.promo.number,
     );
     return list.map((r, i) => ({ ...r, rank: i + 1 }));
   }
@@ -219,6 +239,25 @@ export function buildLeague(data: LeagueData) {
     return [...e.poule, ...e.semis, ...(e.final ? [e.final] : [])]
       .filter((s) => s.winner !== null)
       .sort((a, b) => (b.match_date ?? "").localeCompare(a.match_date ?? "") || b.id - a.id);
+  }
+
+  /** Matchs de poule pas encore joués : les datés d'abord, du plus proche au plus lointain. */
+  function upcoming(e: EditionView) {
+    return e.poule
+      .filter((s) => s.winner === null)
+      .sort((a, b) => kickoff(a).localeCompare(kickoff(b)) || a.id - b.id);
+  }
+
+  /** Prochain match daté (poule ou demi) à partir d'aujourd'hui, toutes éditions confondues. */
+  function nextMatch() {
+    const today = new Date().toISOString().slice(0, 10);
+    const list = editions.flatMap((e) =>
+      [...e.poule, ...e.semis]
+        .filter((s) => s.winner === null && s.match_date !== null && s.match_date >= today)
+        .map((series) => ({ edition: e, series })),
+    );
+    list.sort((a, b) => kickoff(a.series).localeCompare(kickoff(b.series)) || a.series.id - b.series.id);
+    return list[0] ?? null;
   }
 
   /** Ce qu'a fait une promo à chaque édition où elle apparaît. */
@@ -324,6 +363,8 @@ export function buildLeague(data: LeagueData) {
     standings,
     proposedSemis,
     results,
+    upcoming,
+    nextMatch,
     spotlight,
   };
 }

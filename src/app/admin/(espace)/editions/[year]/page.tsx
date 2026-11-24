@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeagueData } from "@/lib/data";
-import { buildLeague, levelOf, promoCode, promoName, seriesScore, type League, type SeriesView } from "@/lib/league";
-import { StandingsTable } from "@/components/season";
+import { buildLeague, formatTime, levelOf, promoCode, promoName, seriesScore, type League, type SeriesView } from "@/lib/league";
+import { StandingsTable, formatDay } from "@/components/season";
 import { ALLEBL_FIRST_YEAR } from "@/lib/allebl";
 import { AWARDS, AWARD_ORDER } from "@/lib/awards";
 import {
@@ -132,8 +132,12 @@ export default async function AdminEdition({ params }: Props) {
                 <details className="rounded-xl border border-line">
                   <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm">
                     <span className="font-medium">{matchTitle(s, league)}</span>
-                    <span className={s.winner ? "font-display font-bold tabular-nums" : "text-xs text-teal"}>
-                      {s.winner ? (seriesScore(s) ?? "joué") : "Saisir le score"}
+                    <span className={s.winner ? "font-display font-bold tabular-nums" : "text-right text-xs text-teal"}>
+                      {s.winner
+                        ? (seriesScore(s) ?? "joué")
+                        : s.match_date
+                          ? `${formatDay(s.match_date)}${s.match_time ? ` · ${formatTime(s.match_time)}` : ""} · saisir le score`
+                          : "Saisir le score"}
                     </span>
                   </summary>
                   <div className="space-y-3 border-t border-line p-4">
@@ -479,10 +483,17 @@ function SeriesForm({
           ))}
       </div>
 
-      <label className={labelCls}>
-        <span>Date du match</span>
-        <input name="match_date" type="date" defaultValue={series?.match_date ?? ""} className={inputCls} />
-      </label>
+      <div className="grid grid-cols-2 gap-3">
+        <label className={labelCls}>
+          <span>Date du match</span>
+          <input name="match_date" type="date" defaultValue={series?.match_date ?? ""} className={inputCls} />
+        </label>
+        <label className={labelCls}>
+          <span>Heure (facultative)</span>
+          <input name="match_time" type="time" defaultValue={series?.match_time?.slice(0, 5) ?? ""} className={inputCls} />
+        </label>
+      </div>
+      {series?.match_time && <input type="hidden" name="had_time" value="1" />}
 
       <details open={!hasScores && side !== ""} className="rounded-lg bg-surface-2 p-3 text-sm">
         <summary className="cursor-pointer text-ink-soft">Score inconnu ? Indiquer seulement le vainqueur</summary>
