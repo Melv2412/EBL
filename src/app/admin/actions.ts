@@ -8,7 +8,7 @@ import { buildLeague } from "@/lib/league";
 import { isHomeMode, type HomeSettings } from "@/lib/home-settings";
 import { HOME_SLIDES, orderedHomeSlides } from "@/lib/home-slides";
 import { randomUUID } from "node:crypto";
-import { MATCH_STATS, MAX_MATCH_STATS, type MatchStat, type MatchStatKey } from "@/lib/types";
+import { FORFEIT_SCORE, MATCH_STATS, MAX_MATCH_STATS, type MatchStat, type MatchStatKey } from "@/lib/types";
 
 export type FormState = { ok?: string; error?: string } | null;
 
@@ -215,10 +215,34 @@ export async function deleteEdition(fd: FormData) {
 
 // ---------- séries (poule, demi, finale) ----------
 
-/** Manches saisies (score_a_1, score_b_1, …) : seules les manches complètes comptent. */
-function gamesFrom(fd: FormData, bestOf: number) {
-  const games: { game_no: number; score_a: number; score_b: number; mvp_player_id: number | null; mvp_stats: MatchStat[] }[] = [];
+type GameInput = {
+  game_no: number;
+  score_a: number;
+  score_b: number;
+  mvp_player_id: number | null;
+  mvp_stats: MatchStat[];
+  forfeit_promo?: number | null;
+};
+
+/**
+ * Manches saisies (score_a_1, score_b_1, …) : seules les manches complètes comptent.
+ * Forfait (forfeit_1 = a | b) : 20-0 pour l'autre équipe, sans MVP.
+ */
+function gamesFrom(fd: FormData, bestOf: number, promoA: number, promoB: number) {
+  const games: GameInput[] = [];
   for (let n = 1; n <= bestOf; n++) {
+    const forfeit = text(fd, `forfeit_${n}`);
+    if (forfeit === "a" || forfeit === "b") {
+      games.push({
+        game_no: n,
+        score_a: forfeit === "a" ? 0 : FORFEIT_SCORE,
+        score_b: forfeit === "b" ? 0 : FORFEIT_SCORE,
+        mvp_player_id: null,
+        mvp_stats: [],
+        forfeit_promo: forfeit === "a" ? promoA : promoB,
+      });
+      continue;
+    }
     const a = int(fd, `score_a_${n}`);
     const b = int(fd, `score_b_${n}`);
     const mvp = mvpFrom(fd, n);
@@ -229,7 +253,9 @@ function gamesFrom(fd: FormData, bestOf: number) {
     if (a === null || b === null) throw new Error(`Manche ${n} : il manque un des deux scores.`);
     if (a < 0 || b < 0) throw new Error(`Manche ${n} : score négatif.`);
     if (a === b) throw new Error(`Manche ${n} : pas de match nul au basket.`);
-    games.push({ game_no: n, score_a: a, score_b: b, ...mvp });
+    // La colonne n'est écrite que si un forfait existait (base pas encore migrée sinon).
+    const hadForfeit = fd.get(`had_forfeit_${n}`) !== null;
+    games.push({ game_no: n, score_a: a, score_b: b, ...mvp, ...(hadForfeit ? { forfeit_promo: null } : {}) });
   }
   return games;
 }
@@ -265,7 +291,7 @@ export async function saveSeries(_: FormState, fd: FormData) {
 
     if (!promo_a || !promo_b || promo_a === promo_b) throw new Error("Choisis deux promos différentes.");
 
-    const games = gamesFrom(fd, best_of);
+    const games = gamesFrom(fd, best_of, promo_a, promo_b);
     const mvpIds = [...new Set(games.map((g) => g.mvp_player_id).filter((x): x is number => x !== null))];
     if (mvpIds.length) {
       const rows = check<{ id: number; promo: number }[]>(await db.from("players").select("id, promo").in("id", mvpIds));

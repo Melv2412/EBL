@@ -1,4 +1,5 @@
 import type { Award, Edition, Game, LeagueData, Player, Promo, Series } from "./types";
+import { rankPoule } from "./standings";
 
 export const LEVELS = ["L1", "L2", "L3", "M1", "M2"] as const;
 export type Level = (typeof LEVELS)[number];
@@ -95,16 +96,17 @@ export type StandingRow = {
   played: number;
   wins: number;
   losses: number;
-  /** Points au classement : 2 par victoire, 1 par défaite. */
+  /** Défaites par forfait (0 point au classement). */
+  forfeits: number;
+  /** Points au classement : 2 par victoire, 1 par défaite, 0 par forfait. */
   points: number;
   pointsFor: number;
   pointsAgainst: number;
   diff: number;
 };
 
-/** Points au classement de poule. */
-export const WIN_POINTS = 2;
-export const LOSS_POINTS = 1;
+/** Points au classement de poule (voir standings.ts). */
+export { WIN_POINTS, LOSS_POINTS, FORFEIT_POINTS } from "./standings";
 
 /** Nombre de qualifiés pour les demies. */
 export const QUALIFIED = 4;
@@ -188,40 +190,21 @@ export function buildLeague(data: LeagueData) {
     })
     .sort((a, b) => b.start_year - a.start_year);
 
-  /** Classement de la poule : points (victoire 2, défaite 1), puis différence de points, puis points marqués. */
+  /** Classement de la poule : voir standings.ts (forfait, mini-classement, différence, points marqués). */
   function standings(e: EditionView): StandingRow[] {
-    const rows = new Map<number, StandingRow>(
-      e.teams.map((p) => [
-        p.number,
-        { promo: p, rank: 0, played: 0, wins: 0, losses: 0, points: 0, pointsFor: 0, pointsAgainst: 0, diff: 0 },
-      ]),
-    );
-    for (const s of e.poule) {
-      if (s.winner === null) continue;
-      const a = rows.get(s.promo_a);
-      const b = rows.get(s.promo_b);
-      if (!a || !b) continue;
-      a.played++;
-      b.played++;
-      (s.winner === s.promo_a ? a : b).wins++;
-      (s.winner === s.promo_a ? b : a).losses++;
+    const matches = e.poule.map((s) => {
       const g = s.games[0];
-      if (g && g.score_a !== null && g.score_b !== null) {
-        a.pointsFor += g.score_a;
-        a.pointsAgainst += g.score_b;
-        b.pointsFor += g.score_b;
-        b.pointsAgainst += g.score_a;
-      }
-    }
-    const list = [...rows.values()].map((r) => ({
-      ...r,
-      points: r.wins * WIN_POINTS + r.losses * LOSS_POINTS,
-      diff: r.pointsFor - r.pointsAgainst,
-    }));
-    list.sort(
-      (x, y) => y.points - x.points || y.diff - x.diff || y.pointsFor - x.pointsFor || x.promo.number - y.promo.number,
-    );
-    return list.map((r, i) => ({ ...r, rank: i + 1 }));
+      return {
+        a: s.promo_a,
+        b: s.promo_b,
+        winner: s.winner,
+        scoreA: g?.score_a ?? null,
+        scoreB: g?.score_b ?? null,
+        forfeit: g?.forfeit_promo ?? null,
+      };
+    });
+    const teams = new Map(e.teams.map((p) => [p.number, p]));
+    return rankPoule([...teams.keys()], matches).map(({ team, ...r }, i) => ({ ...r, promo: teams.get(team)!, rank: i + 1 }));
   }
 
   /** Affiches des demies tirées du classement : 1er–4e et 2e–3e. */

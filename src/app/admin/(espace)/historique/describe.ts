@@ -29,7 +29,7 @@ const FIELD: Record<string, Record<string, string>> = {
     match_time: "heure",
     round: "tour",
   },
-  games: { score_a: "score A", score_b: "score B", mvp_player_id: "MVP", mvp_stats: "stats du MVP" },
+  games: { score_a: "score A", score_b: "score B", mvp_player_id: "MVP", mvp_stats: "stats du MVP", forfeit_promo: "forfait" },
   players: {
     full_name: "nom",
     position: "poste",
@@ -95,7 +95,7 @@ export function describer(league: League, data: LeagueData) {
   function value(table: string, field: string, v: unknown): string {
     if (v === null || v === undefined || v === "") return "vide";
     if (typeof v === "boolean") return v ? "oui" : "non";
-    if (["promo_a", "promo_b", "winner", "promo"].includes(field)) return promo(v);
+    if (["promo_a", "promo_b", "winner", "promo", "forfeit_promo"].includes(field)) return promo(v);
     if (field === "player_id" || field === "mvp_player_id") return player(v);
     if (field === "best_of") return Number(v) === 1 ? "match sec" : `au meilleur des ${v}`;
     if (field === "round") return ROUND[String(v)] ?? String(v);

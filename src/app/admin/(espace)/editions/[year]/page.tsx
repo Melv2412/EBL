@@ -20,7 +20,7 @@ import {
   saveTeams,
 } from "../../../actions";
 import { ActionForm, DeleteButton, inputCls, labelCls } from "../../../form";
-import { MATCH_STATS, MAX_MATCH_STATS, type Game, type MatchStatKey, type Player } from "@/lib/types";
+import { MATCH_STATS, MAX_MATCH_STATS, type Game, type MatchStatKey, type Player, type Series } from "@/lib/types";
 
 type Props = { params: Promise<{ year: string }> };
 
@@ -479,7 +479,10 @@ function SeriesForm({
         {!series && <p className="text-xs text-ink-soft">Le MVP et ses stats se saisissent une fois le match créé.</p>}
         {series &&
           Array.from({ length: bestOf }, (_, i) => i + 1).map((n) => (
-            <MvpFields key={n} n={n} single={bestOf === 1} game={game(n)} players={matchPlayers} league={league} />
+            <div key={n} className="space-y-2">
+              <ForfeitField n={n} single={bestOf === 1} game={game(n)} nameA={nameA} nameB={nameB} series={series} />
+              <MvpFields n={n} single={bestOf === 1} game={game(n)} players={matchPlayers} league={league} />
+            </div>
           ))}
       </div>
 
@@ -633,5 +636,35 @@ function ScorerFields({ points, games }: { points?: number | null; games?: numbe
         <input name="games" type="number" min={1} inputMode="numeric" defaultValue={games ?? ""} className={inputCls} />
       </label>
     </div>
+  );
+}
+
+/** Forfait d'une manche : l'équipe forfait perd 20-0 et ne prend aucun point ; scores et MVP saisis sont ignorés. */
+function ForfeitField({
+  n,
+  single,
+  game,
+  nameA,
+  nameB,
+  series,
+}: {
+  n: number;
+  single: boolean;
+  game?: Game;
+  nameA: string;
+  nameB: string;
+  series: Series;
+}) {
+  const current = game?.forfeit_promo == null ? "" : game.forfeit_promo === series.promo_a ? "a" : "b";
+  return (
+    <label className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
+      <span>Forfait{single ? "" : ` · manche ${n}`}</span>
+      <select name={`forfeit_${n}`} defaultValue={current} className={`${inputCls} w-auto`}>
+        <option value="">Aucun</option>
+        <option value="a">{nameA} déclare forfait</option>
+        <option value="b">{nameB} déclare forfait</option>
+      </select>
+      {current && <input type="hidden" name={`had_forfeit_${n}`} value="1" />}
+    </label>
   );
 }

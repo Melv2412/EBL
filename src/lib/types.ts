@@ -54,7 +54,12 @@ export type Game = {
   /** MVP du match (facultatif) et jusqu'à 3 stats au choix. */
   mvp_player_id?: number | null;
   mvp_stats?: MatchStat[] | null;
+  /** Promo qui a déclaré forfait (score 20-0, aucun point au classement). Migration 0015. */
+  forfeit_promo?: number | null;
 };
+
+/** Score d'un forfait : le vainqueur l'emporte 20-0. */
+export const FORFEIT_SCORE = 20;
 
 export const MATCH_STATS = {
   pts: { short: "pts", label: "Points" },

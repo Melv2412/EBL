@@ -75,7 +75,7 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
             <th className="px-2 py-3 text-center font-semibold" title="Différence de points">
               +/-
             </th>
-            <th className="py-3 pl-2 pr-4 text-right font-semibold" title={`Points au classement : ${WIN_POINTS} par victoire, ${LOSS_POINTS} par défaite`}>
+            <th className="py-3 pl-2 pr-4 text-right font-semibold" title={`Points au classement : ${WIN_POINTS} par victoire, ${LOSS_POINTS} par défaite, 0 par forfait`}>
               Pts
             </th>
           </tr>
@@ -114,8 +114,9 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
       </table>
       {rows.length > QUALIFIED && (
         <p className="border-t border-line px-4 py-2 text-xs text-ink-soft">
-          Victoire {WIN_POINTS} pts, défaite {LOSS_POINTS} pt. Les {QUALIFIED} premiers vont en demi-finales (1er
-          contre 4e, 2e contre 3e).
+          Victoire {WIN_POINTS} pts, défaite {LOSS_POINTS} pt, forfait 0 pt (perdu 20-0). À égalité : matchs entre les
+          équipes concernées, puis différence de points, puis points marqués. Les {QUALIFIED} premiers vont en
+          demi-finales (1er contre 4e, 2e contre 3e).
         </p>
       )}
     </div>
@@ -193,15 +194,22 @@ export function ResultsList({ edition, league, limit }: { edition: EditionView; 
               <span className="ebl-name line-clamp-2">{promoName(b)}</span>
             </span>
             </div>
-            {s.games.map((g) => (
-              <MvpLine
-                key={g.id}
-                game={g}
-                league={league}
-                prefix={s.best_of > 1 ? `Manche ${g.game_no} ·` : undefined}
-                className="mt-1.5 text-center"
-              />
-            ))}
+            {s.games.map((g) => {
+              const prefix = s.best_of > 1 ? `Manche ${g.game_no} ·` : undefined;
+              const forfeit = g.forfeit_promo ? league.promo(g.forfeit_promo) : null;
+              return (
+                <div key={g.id}>
+                  {forfeit ? (
+                    <p className="mt-1.5 text-center text-xs text-ink-soft">
+                      {prefix && <span className="mr-1">{prefix}</span>}
+                      Forfait de {promoName(forfeit)} (20-0)
+                    </p>
+                  ) : (
+                    <MvpLine game={g} league={league} prefix={prefix} className="mt-1.5 text-center" />
+                  )}
+                </div>
+              );
+            })}
           </li>
         );
       })}
