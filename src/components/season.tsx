@@ -1,8 +1,6 @@
 import Link from "next/link";
 import {
-  LOSS_POINTS,
   QUALIFIED,
-  WIN_POINTS,
   formatTime,
   levelOf,
   promoCode,
@@ -75,8 +73,8 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
             <th className="px-2 py-3 text-center font-semibold" title="Différence de points">
               +/-
             </th>
-            <th className="py-3 pl-2 pr-4 text-right font-semibold" title={`Points au classement : ${WIN_POINTS} par victoire, ${LOSS_POINTS} par défaite, 0 par forfait`}>
-              Pts
+            <th className="py-3 pl-2 pr-4 text-right font-semibold" title="Pourcentage de victoires">
+              %
             </th>
           </tr>
         </thead>
@@ -107,16 +105,16 @@ export function StandingsTable({ edition, league, compact }: { edition: EditionV
                 </td>
               )}
               <td className="px-2 py-2.5 text-center tabular-nums">{r.diff > 0 ? `+${r.diff}` : r.diff}</td>
-              <td className="py-2.5 pl-2 pr-4 text-right font-display text-base font-bold tabular-nums">{r.points}</td>
+              <td className="py-2.5 pl-2 pr-4 text-right font-display text-base font-bold tabular-nums">{r.pct ?? "–"}</td>
             </tr>
           ))}
         </tbody>
       </table>
       {rows.length > QUALIFIED && (
         <p className="border-t border-line px-4 py-2 text-xs text-ink-soft">
-          Classement au nombre de victoires, puis à la différence de points, puis aux points marqués. Pts : victoire{" "}
-          {WIN_POINTS}, défaite {LOSS_POINTS}, forfait 0 (perdu 20-0). Les {QUALIFIED} premiers vont en demi-finales
-          (1er contre 4e, 2e contre 3e).
+          Classement au pourcentage de victoires, puis à la différence de points, puis aux points marqués. Une promo
+          sans match est classée après celles qui ont joué. Un forfait est perdu 20-0. Les {QUALIFIED} premiers vont en
+          demi-finales (1er contre 4e, 2e contre 3e).
         </p>
       )}
     </div>

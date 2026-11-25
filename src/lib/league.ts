@@ -96,17 +96,15 @@ export type StandingRow = {
   played: number;
   wins: number;
   losses: number;
-  /** Défaites par forfait (0 point au classement). */
+  /** Défaites par forfait (perdues 20-0). */
   forfeits: number;
-  /** Points au classement : 2 par victoire, 1 par défaite, 0 par forfait. */
-  points: number;
+  /** Pourcentage de victoires (0 à 100), null tant que la promo n'a pas joué. */
+  pct: number | null;
   pointsFor: number;
   pointsAgainst: number;
   diff: number;
 };
 
-/** Points au classement de poule (voir standings.ts). */
-export { WIN_POINTS, LOSS_POINTS, FORFEIT_POINTS } from "./standings";
 
 /** Nombre de qualifiés pour les demies. */
 export const QUALIFIED = 4;
@@ -190,7 +188,7 @@ export function buildLeague(data: LeagueData) {
     })
     .sort((a, b) => b.start_year - a.start_year);
 
-  /** Classement de la poule : voir standings.ts (victoires, différence, points marqués). */
+  /** Classement de la poule : voir standings.ts (% de victoires, différence, points marqués). */
   function standings(e: EditionView): StandingRow[] {
     const matches = e.poule.map((s) => {
       const g = s.games[0];

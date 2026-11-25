@@ -27,26 +27,22 @@ Il n'y a pas de match nul au basket.
 
 ### L'ordre du classement
 
-1. **Le nombre de victoires.**
-2. À égalité de victoires : **la différence de points** (points marqués moins points encaissés, sur tous les matchs de poule).
+1. **Le pourcentage de victoires** (victoires ÷ matchs joués).
+2. À égalité : **la différence de points** (points marqués moins points encaissés, sur tous les matchs de poule).
 3. Si ça ne suffit pas : **le total des points marqués**.
+
+Une équipe qui n'a encore joué aucun match est classée après toutes celles qui ont joué.
 
 Il n'y a pas de critère de match direct. Si A a battu B mais que B a une meilleure différence de points, B passe devant.
 
-### La colonne « Pts » (affichée, mais ne sert pas à classer)
+Le pourcentage permet d'avoir un classement juste en cours de poule. Une équipe à 1 victoire en 1 match (100 %) passe devant une équipe à 1 victoire et 1 défaite (50 %), même si celle-ci a joué plus. En fin de poule, tout le monde a joué le même nombre de matchs : l'ordre est alors celui du nombre de victoires.
 
-| Résultat | Pts |
-|---|---|
-| Victoire | 2 |
-| Défaite | 1 |
-| Défaite par forfait | 0 |
-
-Ce n'est pas le barème du foot (3 / 1 / 0).
+Il n'y a pas de points au classement (ni 2 / 1 / 0, ni le 3 / 1 / 0 du foot). Le tableau affiche J, V, D, points marqués / encaissés, différence et %.
 
 ### Forfait
 
-- L'équipe qui déclare forfait **perd 20-0**. C'est une défaite, avec 0 Pts au lieu de 1.
-- Le 20-0 compte dans la différence de points et dans les points marqués.
+- L'équipe qui déclare forfait **perd 20-0**. C'est une défaite.
+- Le 20-0 compte dans le pourcentage, dans la différence de points et dans les points marqués.
 - Un match gagné par forfait n'a pas de MVP.
 - En demi-finale, un forfait compte comme un match perdu de la série.
 
@@ -68,7 +64,7 @@ Le site EBL calcule ce classement automatiquement. Sur ClubSport, le plus simple
 - **Statistiques** : remplacer « Meilleurs marqueurs (Basket) » par un **palmarès MVP**. Un classement des marqueurs ne contiendrait que les MVP, il serait donc faux.
 - **Fiche match** : afficher le score, le MVP, la phase, la date, le lieu et le lien « Voir sur EBL ». Aucun événement daté à la minute (Panier, Rebond, Passe, Interception).
 - **Joueurs** : ne créer que les joueurs qui ont été MVP. On crée un joueur sur ClubSport la première fois qu'il est élu MVP (nom, promo, poste et photo repris d'EBL). Ses titres de MVP s'ajoutent ensuite à sa fiche. C'est la même logique qu'au foot, où seuls les buteurs et les MVP sont enregistrés.
-- **Classement** : par nombre de victoires, puis différence de points, puis points marqués (section 4). Colonne Pts en 2 / 1 / 0, pas le barème du foot.
+- **Classement** : au pourcentage de victoires, puis différence de points, puis points marqués ; les équipes sans match en dernier (section 4). Pas de points au classement, pas le barème du foot.
 - **Groupes** : une seule poule.
 
 ## 7. Questions pour toi
